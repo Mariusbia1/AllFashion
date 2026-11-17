@@ -1,0 +1,305 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   DESIGN SYSTEM STYLISTE CRÉATEUR — MONOCHROME PUR (NOIR & BLANC SANS COULEUR)
+   BORDURES DROITES STRICTES (AUCUN ARRONDISSEMENT / ZERO BORDER-RADIUS)
+   INSPIRÉ FIDÈLEMENT DE LA MAQUETTE ÉDITORIALE HAUT DE GAMME
+   ========================================================================== */
+
+:root {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F8F8;
+  --bg-dark: #000000;
+  --bg-card: #FFFFFF;
+
+  --text-primary: #000000;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --text-light: #FFFFFF;
+
+  --border-light: #E5E5E5;
+  --border-medium: #CCCCCC;
+  --border-dark: #000000;
+
+  --font-serif: 'Cormorant Garamond', 'Cinzel', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
+
+  /* RÈGLE ABSOLUE : ZÉRO BORDER-RADIUS SUR TOUT LE PROJET */
+  --radius-none: 0px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 !important; /* Aucun arrondi */
+}
+
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* TYPOGRAPHIE ÉDITORIALE HAUTE COUTURE */
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.tracking-wide-caps {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+}
+
+/* CONTENEUR STANDARD */
+.editorial-container {
+  max-width: 1380px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+@media (max-width: 768px) {
+  .editorial-container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+/* ==========================================================================
+   BOUTONS STYLISTE : PAS DE COULEUR REMPLIE, DESIGN NOIR & BLANC PUR
+   ========================================================================== */
+
+/* Bouton Noir / Ligne pure */
+.btn-stylist-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.8rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 500;
+  background-color: #000000;
+  color: #FFFFFF;
+  border: 1px solid #000000;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.btn-stylist-dark:hover {
+  background-color: #FFFFFF;
+  color: #000000;
+  border-color: #000000;
+}
+
+/* Bouton Blanc / Contour Noir strict */
+.btn-stylist-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.8rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 500;
+  background-color: transparent;
+  color: #000000;
+  border: 1px solid #000000;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.btn-stylist-outline:hover {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+/* Bouton Blanc pur sur fond noir */
+.btn-stylist-inverse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.8rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 500;
+  background-color: #FFFFFF;
+  color: #000000;
+  border: 1px solid #FFFFFF;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.btn-stylist-inverse:hover {
+  background-color: transparent;
+  color: #FFFFFF;
+}
+
+/* Liens textuels éditoriaux avec souligné fin */
+.link-editorial {
+  position: relative;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #000000;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #000000;
+  transition: opacity 0.2s ease;
+}
+
+.link-editorial:hover {
+  opacity: 0.6;
+}
+
+/* BADGES MONOCHROMES STRICTS */
+.badge-minimal {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #000000;
+  background-color: #FFFFFF;
+  color: #000000;
+  display: inline-block;
+}
+
+.badge-minimal-dark {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #000000;
+  background-color: #000000;
+  color: #FFFFFF;
+  display: inline-block;
+}
+
+/* CHAMPS DE FORMULAIRE MONOCHROMES SANS ARRONDIS */
+.input-stylist {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background-color: #FFFFFF;
+  color: #000000;
+  border: 1px solid #000000;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input-stylist:focus {
+  border-color: #000000;
+  box-shadow: 0 0 0 1px #000000;
+}
+
+.input-stylist-dark {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background-color: #000000;
+  color: #FFFFFF;
+  border: 1px solid #333333;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.input-stylist-dark:focus {
+  border-color: #FFFFFF;
+}
+
+/* HOTSPOTS LOOKBOOK (Inspiré de "The Spring Lookbook" de la maquette) */
+.lookbook-hotspot {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 0 !important;
+  background-color: #FFFFFF;
+  border: 2px solid #000000;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 10;
+}
+
+.lookbook-hotspot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background-color: #000000;
+  transform: translate(-50%, -50%);
+}
+
+.lookbook-hotspot:hover {
+  transform: translate(-50%, -50%) scale(1.3);
+}
+
+/* ANIMATIONS & TRANSITIONS SUBTILES */
+.fade-in-element {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* SUPPRESSION SCROLLBAR INUTILE POUR UN DESIGN CLEAN */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F4F4F4;
+}
+::-webkit-scrollbar-thumb {
+  background: #000000;
+}
