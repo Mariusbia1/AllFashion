@@ -76,7 +76,7 @@ export function CartProvider({ children }) {
     // Simulation de la référence de commande qui sera générée par Laravel (ex: CMD-2026-XXXX)
     const orderRef = `CMD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    let msg = `*NOUVELLE COMMANDE — CRÉATIONS*\n`;
+    let msg = `*NOUVELLE COMMANDE — ALLFASHION*\n`;
     msg += `Référence : ${orderRef}\n`;
     msg += `-----------------------------------\n`;
     msg += `Client : ${customerName}\n`;

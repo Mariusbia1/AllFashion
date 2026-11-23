@@ -41,7 +41,7 @@ export default function Footer() {
               lineHeight: 1.1,
               color: '#FFFFFF'
             }}>
-              L’Art du Vêtement Épuré.
+              Restez Informé.
             </h2>
             <p style={{
               color: '#888888',
@@ -49,7 +49,7 @@ export default function Footer() {
               marginTop: '0.8rem',
               maxWidth: '480px'
             }}>
-              Recevez les sorties de collections capsules, créations uniques et créneaux de déplacements privés.
+              Recevez nos nouvelles pièces, nos conseils de style et les nouveaux modèles de l’atelier.
             </p>
           </div>
 
@@ -107,12 +107,13 @@ export default function Footer() {
           <div style={{ gridColumn: 'span 1' }}>
             <span style={{
               fontFamily: 'var(--font-serif)',
-              fontSize: '1.5rem',
+              fontSize: '1.6rem',
               fontWeight: 700,
               display: 'block',
+              letterSpacing: '0.04em',
               marginBottom: '1rem'
             }}>
-              ATELIER
+              AllFashion
             </span>
             <p style={{
               fontSize: '0.85rem',
@@ -120,7 +121,7 @@ export default function Footer() {
               lineHeight: 1.6,
               marginBottom: '1.5rem'
             }}>
-              Maison de création vestimentaire contemporaine : prêt-à-porter numéroté, tailoring sur-mesure et studio de flocage textile.
+              Des vêtements soignés en prêt-à-porter et sur-mesure. Personnalisation et prise de mesure directement à votre domicile à Cotonou.
             </p>
             <a
               href={`https://wa.me/${STYLIST_WHATSAPP_NUMBER}`}
@@ -147,9 +148,9 @@ export default function Footer() {
             </h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
               <li><Link to="/boutique" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Prêt-à-Porter</Link></li>
-              <li><Link to="/sur-mesure" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Tailoring & Sur-Mesure</Link></li>
-              <li><Link to="/flocage" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Studio de Flocage</Link></li>
-              <li><Link to="/lookbook" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Galerie Lookbook</Link></li>
+              <li><Link to="/sur-mesure" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Sur-Mesure</Link></li>
+              <li><Link to="/flocage" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Flocage</Link></li>
+              <li><Link to="/lookbook" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Galerie</Link></li>
             </ul>
           </div>
 
@@ -163,13 +164,13 @@ export default function Footer() {
               marginBottom: '1.2rem',
               color: '#FFFFFF'
             }}>
-              Sur-Mesure VIP
+              Services
             </h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
-              <li><Link to="/sur-mesure" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Prise de Mesure à Domicile</Link></li>
-              <li><Link to="/sur-mesure" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Consultation à l'Atelier</Link></li>
-              <li><Link to="/atelier" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Le Savoir-Faire</Link></li>
-              <li><Link to="/contact" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Prendre Rendez-vous</Link></li>
+              <li><Link to="/sur-mesure" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Mesure à Domicile</Link></li>
+              <li><Link to="/sur-mesure" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Rendez-vous Styliste</Link></li>
+              <li><Link to="/atelier" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>L'Atelier</Link></li>
+              <li><Link to="/contact" style={{ color: '#888888', textDecoration: 'none', fontSize: '0.85rem' }}>Contact</Link></li>
             </ul>
           </div>
 
@@ -207,7 +208,7 @@ export default function Footer() {
           color: '#666666',
           fontFamily: 'var(--font-mono)'
         }}>
-          <span>© {new Date().getFullYear()} ATELIER CRÉATEUR. TOUS DROITS RÉSERVÉS.</span>
+          <span>© {new Date().getFullYear()} ALLFASHION. TOUS DROITS RÉSERVÉS.</span>
           <span>PLATEFORME WEB & COMMERCE WHATSAPP</span>
         </div>
       </div>

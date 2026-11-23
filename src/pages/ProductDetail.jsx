@@ -55,32 +55,15 @@ export default function ProductDetail() {
         </Link>
       </div>
 
-      {/* Détail Produit Layout 2 Colonnes */}
+      {/* Détail Produit Layout 2 Colonnes Compact */}
       <div className="editorial-container">
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-          gap: '4rem',
-          alignItems: 'start'
-        }}>
-          {/* Colonne Gauche : Galerie Photos */}
-          <div>
-            <div style={{
-              aspectRatio: '3/4',
-              backgroundColor: '#000000',
-              border: '1px solid #000000',
-              overflow: 'hidden',
-              marginBottom: '1rem'
-            }}>
+        <div className="product-detail-layout">
+          {/* Colonne Gauche : Galerie Photos Compacte & Image Réelle */}
+          <div className="product-detail-gallery">
+            <div className="product-detail-main-img-box">
               <img
                 src={selectedImage}
                 alt={product.name}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  filter: 'grayscale(100%)'
-                }}
               />
             </div>
 
@@ -93,19 +76,20 @@ export default function ProductDetail() {
                     type="button"
                     onClick={() => setSelectedImage(img)}
                     style={{
-                      width: '70px',
+                      width: '74px',
                       height: '90px',
                       padding: 0,
-                      border: selectedImage === img ? '2px solid #000000' : '1px solid #CCCCCC',
-                      backgroundColor: '#FFFFFF',
+                      border: selectedImage === img ? '2px solid #000000' : '1px solid #D0D0D0',
+                      backgroundColor: '#F5F5F5',
                       cursor: 'pointer',
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      transition: 'border-color 0.15s ease'
                     }}
                   >
                     <img
                       src={img}
                       alt={`Vue ${idx + 1}`}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(100%)' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'none' }}
                     />
                   </button>
                 ))}
@@ -119,7 +103,7 @@ export default function ProductDetail() {
               {product.categoryLabel}
             </span>
 
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.8rem', lineHeight: 1.1, marginBottom: '1rem' }}>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', lineHeight: 1.15, marginBottom: '0.8rem' }}>
               {product.name}
             </h1>
 
@@ -197,15 +181,14 @@ export default function ProductDetail() {
                   </button>
                 </div>
 
-                {/* Bouton Ajouter au Panier */}
+                {/* Bouton Ajouter au Panier (texte seul sans icône pour gagner de la place) */}
                 <button
                   type="button"
                   onClick={() => addItem(product, selectedSize, quantity)}
                   className="btn-stylist-outline"
-                  style={{ flex: 1, padding: '1rem' }}
+                  style={{ flex: 1, padding: '0.9rem 1.2rem', fontSize: '0.78rem' }}
                 >
-                  <ShoppingBag size={16} />
-                  <span>AJOUTER AU PANIER</span>
+                  AJOUTER AU PANIER
                 </button>
               </div>
 
@@ -214,10 +197,9 @@ export default function ProductDetail() {
                 type="button"
                 onClick={handleDirectWhatsAppOrder}
                 className="btn-stylist-dark"
-                style={{ width: '100%', padding: '1rem' }}
+                style={{ width: '100%', padding: '0.95rem 1.5rem', fontSize: '0.78rem' }}
               >
-                <Send size={16} />
-                <span>COMMANDER DIRECTEMENT SUR WHATSAPP</span>
+                COMMANDER DIRECTEMENT SUR WHATSAPP
               </button>
             </div>
 

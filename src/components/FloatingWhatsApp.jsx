@@ -45,23 +45,10 @@ export default function FloatingWhatsApp() {
   };
 
   return (
-    <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 900 }}>
+    <div className="floating-whatsapp-container">
       {/* Fenêtre pop-up de discussion styliste */}
       {isOpen && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '4rem',
-            right: 0,
-            width: '360px',
-            backgroundColor: '#FFFFFF',
-            border: '2px solid #000000',
-            boxShadow: '0 12px 35px rgba(0,0,0,0.18)',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          className="fade-in-element"
-        >
+        <div className="floating-whatsapp-popup fade-in-element">
           {/* Header Monochrome strict */}
           <div
             style={{

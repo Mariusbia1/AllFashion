@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
@@ -15,11 +18,15 @@ import Lookbook from './pages/Lookbook';
 import Atelier from './pages/Atelier';
 import Contact from './pages/Contact';
 
-function ScrollToTop() {
+function ScrollHandler() {
   const { pathname } = useLocation();
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Rafraîchir AOS lors de chaque changement de page
+    AOS.refresh();
   }, [pathname]);
+
   return null;
 }
 
@@ -58,10 +65,20 @@ function MainLayout() {
 }
 
 export default function App() {
+  useEffect(() => {
+    // Initialisation d'AOS avec transitions douces et sobres
+    AOS.init({
+      duration: 800,
+      easing: 'ease-out-cubic',
+      once: true,
+      offset: 60
+    });
+  }, []);
+
   return (
     <BrowserRouter>
       <CartProvider>
-        <ScrollToTop />
+        <ScrollHandler />
         <MainLayout />
       </CartProvider>
     </BrowserRouter>

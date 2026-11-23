@@ -4,20 +4,20 @@ import { STYLIST_WHATSAPP_NUMBER } from '../data/products';
 
 const FAQS = [
   {
-    q: "Comment se déroule la prise de mesure avec déplacement à domicile ?",
-    a: "Le créateur se déplace directement à votre adresse à Cotonou et ses environs avec ses nuanciers d'étoffes nobles, doublures et instruments de mesure. La séance dure 30 à 45 minutes pour définir la coupe et enregistrer l'ensemble de vos mensurations."
+    q: "Comment se déroule la prise de mesure chez vous ?",
+    a: "Le styliste se déplace directement à votre domicile ou à votre bureau à Cotonou et ses environs avec ses échantillons de tissus et son mètre ruban. En 30 minutes, il prend vos mesures et note tous les détails de votre tenue."
   },
   {
-    q: "Comment s'effectue la commande d'une pièce de prêt-à-porter ?",
-    a: "Vous ajoutez l'article à votre panier et validez le formulaire. Une redirection instantanée s'ouvre vers WhatsApp avec votre récapitulatif structuré pour confirmer le stock et convenir de la livraison personnalisée."
+    q: "Comment s'effectue la commande d'une pièce ?",
+    a: "Vous choisissez votre vêtement sur le site et vous cliquez sur Commander. Vous êtes automatiquement redirigé vers WhatsApp pour échanger directement avec le styliste et convenir de la livraison."
   },
   {
-    q: "Quels sont les délais de confection pour une tenue sur-mesure ?",
-    a: "Le délai moyen est de 7 à 14 jours ouvrés selon la complexité du patronage et le nombre d'essayages intermédiaires programmés."
+    q: "Quels sont les délais pour une tenue sur-mesure ?",
+    a: "Le délai moyen est de 7 à 14 jours selon le modèle choisi et le temps nécessaire pour un essayage parfait."
   },
   {
-    q: "Prenez-vous en charge le flocage en grande quantité pour les marques ou événements ?",
-    a: "Oui, notre atelier de flocage traite les projets unitaires comme les séries de 50 à 500+ pièces (t-shirts, hoodies, vestes) avec tarifs dégressifs."
+    q: "Faites-vous du flocage pour des groupes ou entreprises ?",
+    a: "Oui, nous personnalisons les vêtements à l'unité comme en grandes séries (t-shirts, polos, vestes) avec des tarifs préférentiels."
   }
 ];
 
@@ -66,8 +66,8 @@ export default function Contact() {
         <div className="editorial-container">
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-            gap: '4rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
+            gap: 'clamp(2rem, 4vw, 4rem)',
             alignItems: 'start'
           }}>
             

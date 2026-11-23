@@ -1,195 +1,296 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Scissors, Sparkles, ShoppingBag, ShieldCheck, Clock, Award, Star } from 'lucide-react';
+import { ArrowRight, Scissors, Sparkles, ShieldCheck, Clock, Star, MessageCircle } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { PRODUCTS, CATEGORIES, LOOKBOOK_ITEMS, TESTIMONIALS, STYLIST_WHATSAPP_NUMBER } from '../data/products';
 
+const REALISATIONS = [
+  {
+    id: 'real-1',
+    title: 'Costume Croisé 3 Pièces',
+    category: 'Sur-Mesure Cérémonie',
+    image: '/assets/img/creation-1.jpg',
+    desc: 'Coupe droite élégante, veste structurée et finitions soignées pour mariage.',
+    badge: 'Cérémonie'
+  },
+  {
+    id: 'real-2',
+    title: 'Robe Sculpturale Monochrome',
+    category: 'Haute Couture',
+    image: '/assets/img/creation-2.jpg',
+    desc: 'Jeu de contrastes noir et blanc fluide pour soirée de gala.',
+    badge: 'Édition Privée'
+  },
+  {
+    id: 'real-3',
+    title: 'Gilet Artistique Imprimé',
+    category: 'Signature Styliste',
+    image: '/images/look-imprime-2.jpg',
+    desc: 'La création signature portée par le styliste créateur AllFashion.',
+    badge: 'Créateur'
+  }
+];
+
 export default function Home() {
-  const [selectedFilter, setSelectedFilter] = useState('ALL');
   const [activeLookIndex, setActiveLookIndex] = useState(0);
 
-  // Filtrage Trending Now
-  const trendingProducts = PRODUCTS.filter((p) => {
-    if (selectedFilter === 'NEW') return p.isNew;
-    if (selectedFilter === 'BEST') return p.isBestSeller;
-    if (selectedFilter === 'SUR_MESURE') return p.category === 'SUR_MESURE';
-    return true;
-  });
-
+  // 4 catégories sur une ligne
+  const mainCategories = CATEGORIES.slice(1, 5);
   const currentLook = LOOKBOOK_ITEMS[activeLookIndex] || LOOKBOOK_ITEMS[0];
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF' }}>
-      
+    <div style={{ backgroundColor: '#FFFFFF', color: '#000000', overflowX: 'hidden' }}>
+
       {/* =========================================================================
-          1. HERO HEADER ÉDITORIAL (Repris fidèlement de la maquette "Discover Timeless Fashion")
+          1. HERO HEADER FULL-SCREEN AVEC IMAGE EN BG + LÉGER FLOU NOIR + AOS
           ========================================================================= */}
       <section style={{
         position: 'relative',
-        minHeight: '88vh',
+        minHeight: 'calc(100vh - 110px)',
+        width: '100%',
         display: 'flex',
         alignItems: 'center',
-        backgroundColor: '#000000',
-        color: '#FFFFFF',
-        overflow: 'hidden'
+        justifyContent: 'center',
+        overflow: 'hidden',
+        color: '#FFFFFF'
       }}>
-        {/* Image de fond en arrière-plan avec voile noir éditorial */}
+        {/* IMAGE BACKGROUND AVEC LÉGER FLOU */}
         <div style={{
           position: 'absolute',
-          inset: 0,
+          inset: '-20px',
           backgroundImage: `url('/assets/img/creation-1.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center 25%',
-          opacity: 0.42,
-          filter: 'grayscale(100%)' // Noir et blanc absolu
+          filter: 'blur(3.5px) brightness(0.9)',
+          transform: 'scale(1.04)',
+          zIndex: 1
         }} />
 
-        <div className="editorial-container" style={{ position: 'relative', zIndex: 10, width: '100%', paddingBottom: '3rem', paddingTop: '3rem' }}>
-          <div style={{ maxWidth: '820px' }}>
-            <span style={{
+        {/* OVERLAY VOILE NOIR SUBTIL */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.42)',
+          zIndex: 2
+        }} />
+
+        {/* CONTENU DU HERO ANIMÉ VIA AOS */}
+        <div className="editorial-container" style={{
+          position: 'relative',
+          zIndex: 10,
+          width: '100%',
+          paddingBottom: '4rem',
+          paddingTop: '4rem',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}>
+          <span
+            data-aos="fade-down"
+            data-aos-delay="100"
+            style={{
               fontFamily: 'var(--font-mono)',
-              fontSize: '0.78rem',
-              letterSpacing: '0.28em',
+              fontSize: 'clamp(0.72rem, 1.2vw, 0.85rem)',
+              letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: '#CCCCCC',
+              color: '#E0E0E0',
               display: 'block',
-              marginBottom: '1rem'
-            }}>
-              COLLECTION CAPSULE & SUR-MESURE — 2026
-            </span>
+              marginBottom: '1.2rem',
+              fontWeight: 600
+            }}
+          >
+            PRÊT-À-PORTER & SUR-MESURE
+          </span>
 
-            <h1 style={{
+          <h1
+            data-aos="fade-up"
+            data-aos-delay="200"
+            style={{
               fontFamily: 'var(--font-serif)',
-              fontSize: 'clamp(3.2rem, 7vw, 5.8rem)',
-              lineHeight: 1.02,
+              fontSize: 'clamp(2.3rem, 6.5vw, 5.8rem)',
+              lineHeight: 1.05,
               fontWeight: 400,
-              letterSpacing: '-0.03em',
+              letterSpacing: '-0.02em',
               marginBottom: '1.5rem',
-              color: '#FFFFFF'
-            }}>
-              L’Élégance de Coupe.<br />
-              Sculptée Pour Vous.
-            </h1>
+              color: '#FFFFFF',
+              maxWidth: '960px'
+            }}
+          >
+            Votre Style, Sur-Mesure.<br />
+            Créé Rien Que Pour Vous.
+          </h1>
 
-            <p style={{
-              fontSize: '1.05rem',
-              color: '#CCCCCC',
-              maxWidth: '560px',
+          <p
+            data-aos="fade-up"
+            data-aos-delay="300"
+            style={{
+              fontSize: 'clamp(1rem, 1.8vw, 1.2rem)',
+              color: '#E5E5E5',
               lineHeight: 1.6,
-              marginBottom: '2.5rem'
-            }}>
-              Créations de prêt-à-porter numérotées, confection sur-mesure avec déplacement direct à domicile à Cotonou, et studio de personnalisation textile.
-            </p>
+              marginBottom: '2.8rem',
+              maxWidth: '620px'
+            }}
+          >
+            Des vêtements élégants en prêt-à-porter ou sur-mesure. Le styliste se déplace directement chez vous ou à votre bureau à Cotonou pour vos mesures.
+          </p>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-              <Link to="/boutique" className="btn-stylist-inverse">
-                <span>DÉCOUVRIR LA BOUTIQUE</span>
-                <ArrowRight size={14} />
-              </Link>
-              <Link to="/sur-mesure" className="btn-stylist-outline" style={{ color: '#FFFFFF', borderColor: '#FFFFFF' }}>
-                <span>PRENDRE RENDEZ-VOUS SUR-MESURE</span>
-              </Link>
-            </div>
+          <div
+            data-aos="fade-up"
+            data-aos-delay="400"
+            style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem', justifyContent: 'center' }}
+          >
+            <Link
+              to="/boutique"
+              className="btn-stylist-inverse"
+              style={{
+                padding: '1.05rem 2.4rem',
+                fontSize: '0.8rem',
+                backgroundColor: '#FFFFFF',
+                color: '#000000',
+                border: '1px solid #FFFFFF'
+              }}
+            >
+              <span>VOIR LA BOUTIQUE</span>
+              <ArrowRight size={15} />
+            </Link>
+
+            <Link
+              to="/sur-mesure"
+              className="btn-stylist-outline"
+              style={{
+                padding: '1.05rem 2.4rem',
+                fontSize: '0.8rem',
+                color: '#FFFFFF',
+                borderColor: '#FFFFFF',
+                backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                backdropFilter: 'blur(4px)'
+              }}
+            >
+              <span>PRENDRE RENDEZ-VOUS</span>
+            </Link>
           </div>
         </div>
 
-        {/* Indicateur de défilement discret en bas */}
+        {/* Indicateur SCROLL */}
         <div style={{
           position: 'absolute',
-          bottom: '2rem',
+          bottom: '1.6rem',
           left: '50%',
           transform: 'translateX(-50%)',
           fontFamily: 'var(--font-mono)',
-          fontSize: '0.65rem',
+          fontSize: '0.68rem',
           letterSpacing: '0.25em',
           textTransform: 'uppercase',
-          color: '#888888',
+          color: '#CCCCCC',
           zIndex: 10
         }}>
-          SCROLL
+
         </div>
       </section>
 
       {/* =========================================================================
-          2. SHOP BY CATEGORY (Repris de la maquette "Shop by Category")
+          2. SHOP BY CATEGORY : 4 GRANDES IMAGES SUR LA LIGNE AVEC ANIMATIONS DÉCALÉES
           ========================================================================= */}
-      <section style={{ padding: '6rem 0', borderBottom: '1px solid #E5E5E5' }}>
+      <section style={{ padding: 'clamp(3.5rem, 6vw, 5.5rem) 0', backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
+          <div
+            data-aos="fade-up"
+            style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1rem', marginBottom: '2.8rem' }}
+          >
             <div>
               <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.4rem' }}>
-                EXPLORER
+                COLLECTIONS
               </span>
-              <h2 style={{ fontSize: '2.4rem', fontFamily: 'var(--font-serif)' }}>
-                Catégories & Univers
+              <h2 style={{ fontSize: 'clamp(2rem, 4vw, 2.6rem)', fontFamily: 'var(--font-serif)', color: '#000000' }}>
+                Nos Catégories
               </h2>
             </div>
 
             <Link to="/boutique" className="link-editorial">
-              <span>Voir tout le catalogue</span>
+              <span>Voir tout</span>
               <ArrowRight size={14} />
             </Link>
           </div>
 
-          {/* Grille des catégories avec vraies images noir & blanc */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: '1.2rem'
-          }}>
-            {CATEGORIES.slice(1).map((cat) => (
-              <Link
+          <div className="home-categories-grid">
+            {mainCategories.map((cat, idx) => (
+              <div
                 key={cat.id}
-                to={`/boutique?category=${cat.id}`}
-                style={{
-                  textDecoration: 'none',
-                  color: '#000000',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  border: '1px solid #E5E5E5',
-                  backgroundColor: '#FFFFFF',
-                  transition: 'border-color 0.2s ease'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.borderColor = '#000000'}
-                onMouseLeave={(e) => e.currentTarget.style.borderColor = '#E5E5E5'}
+                data-aos="fade-up"
+                data-aos-delay={idx * 100}
               >
-                <div style={{ aspectRatio: '3/4', overflow: 'hidden', backgroundColor: '#000000' }}>
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      filter: 'grayscale(100%)',
-                      transition: 'transform 0.4s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.06)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                  />
-                </div>
-                <div style={{ padding: '1rem', borderTop: '1px solid #E5E5E5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 600 }}>{cat.name}</span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888888' }}>{cat.count} pièces</span>
-                </div>
-              </Link>
+                <Link
+                  to={`/boutique?category=${cat.id}`}
+                  style={{
+                    textDecoration: 'none',
+                    color: '#000000',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    backgroundColor: '#FFFFFF',
+                    border: 'none',
+                    padding: 0
+                  }}
+                >
+                  <div style={{ aspectRatio: '3/4', overflow: 'hidden', backgroundColor: '#F0F0F0', border: 'none' }}>
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      loading="lazy"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        filter: 'none',
+                        opacity: 1,
+                        transition: 'transform 0.45s ease'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    />
+                  </div>
+                  <div style={{ paddingTop: '0.75rem' }}>
+                    <span style={{
+                      fontFamily: 'var(--font-serif)',
+                      fontSize: 'clamp(1rem, 3.5vw, 1.3rem)',
+                      fontWeight: 600,
+                      display: 'block',
+                      lineHeight: 1.2
+                    }}>
+                      {cat.name}
+                    </span>
+                    <span style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.72rem',
+                      color: '#888888',
+                      display: 'block',
+                      marginTop: '0.25rem'
+                    }}>
+                      {cat.count} pièces
+                    </span>
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* =========================================================================
-          3. NOUVELLES ARRIVÉES (New Arrivals)
+          3. NOUVELLES ARRIVÉES : 3 GRANDES PIÈCES ANIMÉES AU SCROLL
           ========================================================================= */}
-      <section style={{ padding: '6rem 0', backgroundColor: '#F8F8F8', borderBottom: '1px solid #E5E5E5' }}>
+      <section style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
+          <div
+            data-aos="fade-up"
+            style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1rem', marginBottom: '3rem' }}
+          >
             <div>
               <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.4rem' }}>
-                DERNIÈRES CRÉATIONS
+                NOUVEAUTÉS
               </span>
-              <h2 style={{ fontSize: '2.4rem', fontFamily: 'var(--font-serif)' }}>
-                Nouvelles Éditions
+              <h2 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 2.8rem)', fontFamily: 'var(--font-serif)' }}>
+                Nouvelles Arrivées
               </h2>
             </div>
             <Link to="/boutique" className="link-editorial">
@@ -198,165 +299,295 @@ export default function Home() {
             </Link>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '1.8rem'
-          }}>
-            {PRODUCTS.slice(0, 4).map((product) => (
-              <ProductCard key={product.id} product={product} />
+          <div className="home-products-grid-3">
+            {PRODUCTS.slice(0, 3).map((product, idx) => (
+              <div
+                key={product.id}
+                data-aos="fade-up"
+                data-aos-delay={idx * 120}
+              >
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* =========================================================================
-          4. BANNIÈRE PROMOTIONNELLE & ATELIER (Inspiré de "Summer Collection 2026")
+          4. LE CRÉATEUR & LE SUR-MESURE (SECTION NOIRE ARCHITECTURALE & IMPRESSIONNANTE)
           ========================================================================= */}
-      <section style={{ padding: '6rem 0', borderBottom: '1px solid #000000' }}>
+      <section className="home-creator-section">
         <div className="editorial-container">
-          <div style={{
-            backgroundColor: '#000000',
-            color: '#FFFFFF',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-            border: '2px solid #000000'
-          }}>
-            {/* Image éditoriale atelier */}
-            <div style={{ position: 'relative', minHeight: '380px' }}>
+          <div data-aos="fade-up" className="home-creator-grid">
+            
+            {/* Colonne Gauche : Portrait Majestueux du Styliste */}
+            <div className="home-creator-photo-box" data-aos="fade-right">
+              <span className="home-creator-badge-top">
+                LE STYLISTE ALLFASHION
+              </span>
               <img
-                src="/assets/img/creation-3.jpg"
-                alt="Atelier de Confection"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  filter: 'grayscale(100%)'
-                }}
+                src="/images/look-imprime-2.jpg"
+                alt="Le Styliste Créateur AllFashion"
+                loading="lazy"
               />
+              <div className="home-creator-badge-bottom">
+                <span>DIRECTION ARTISTIQUE • COTONOU</span>
+              </div>
             </div>
 
-            {/* Texte et appel à l'action */}
-            <div style={{ padding: '4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <span style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.72rem',
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: '#888888',
-                marginBottom: '1rem',
-                display: 'block'
-              }}>
-                SUR-MESURE & DÉPLACEMENT PRIVÉ
-              </span>
+            {/* Colonne Droite : Présentation Charismatique & Prise de RDV */}
+            <div data-aos="fade-left">
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.35rem 0.8rem', border: '1px solid #333333', backgroundColor: 'rgba(255,255,255,0.05)', marginBottom: '1.2rem' }}>
+                <Scissors size={14} color="#FFFFFF" />
+                <span style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  color: '#CCCCCC',
+                  fontWeight: 600
+                }}>
+                  LE CRÉATEUR & LE SUR-MESURE
+                </span>
+              </div>
 
               <h2 style={{
                 fontFamily: 'var(--font-serif)',
-                fontSize: '2.8rem',
-                lineHeight: 1.1,
+                fontSize: 'clamp(2.1rem, 4vw, 3.4rem)',
+                lineHeight: 1.08,
                 marginBottom: '1.2rem',
                 color: '#FFFFFF'
               }}>
-                La Prise de Mesure à Domicile.
+                L’Élégance du Vêtement,<br />
+                Façonné Pour Vous.
               </h2>
+
+              <p style={{
+                fontFamily: 'var(--font-serif)',
+                fontStyle: 'italic',
+                fontSize: 'clamp(1.1rem, 1.8vw, 1.35rem)',
+                color: '#E0E0E0',
+                lineHeight: 1.5,
+                marginBottom: '1.4rem'
+              }}>
+                « Un bon vêtement ne se contente pas d’habiller : il révèle votre personnalité et vous donne de l’assurance. »
+              </p>
 
               <p style={{
                 color: '#AAAAAA',
                 fontSize: '0.95rem',
-                lineHeight: 1.6,
-                marginBottom: '2rem'
+                lineHeight: 1.65,
+                marginBottom: '2rem',
+                maxWidth: '540px'
               }}>
-                Le styliste apporte ses nuanciers d’étoffes nobles et prend l’ensemble de vos mensurations directement chez vous ou à votre bureau. Confection artisanale et essayages garantis.
+                Pour vos mariages, réceptions ou votre quotidien, le styliste se déplace directement chez vous ou à votre bureau à Cotonou avec sa sélection de tissus. Vos mesures sont prises avec soin pour créer une tenue sur-mesure unique.
               </p>
 
-              <div>
-                <Link to="/sur-mesure" className="btn-stylist-inverse">
-                  RÉSERVER VOTRE CRÉNEAU
+              {/* 3 Piliers de Prestige */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                gap: '1rem',
+                paddingBottom: '2rem',
+                marginBottom: '2rem',
+                borderBottom: '1px solid #222222'
+              }}>
+                <div>
+                  <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '1.1rem', fontWeight: 700, color: '#FFFFFF' }}>100%</span>
+                  <span style={{ fontSize: '0.78rem', color: '#888888', marginTop: '0.2rem', display: 'block' }}>Sur-Mesure Précis</span>
+                </div>
+                <div>
+                  <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '1.1rem', fontWeight: 700, color: '#FFFFFF' }}>VIP</span>
+                  <span style={{ fontSize: '0.78rem', color: '#888888', marginTop: '0.2rem', display: 'block' }}>Déplacement Chez Vous</span>
+                </div>
+                <div>
+                  <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '1.1rem', fontWeight: 700, color: '#FFFFFF' }}>Direct</span>
+                  <span style={{ fontSize: '0.78rem', color: '#888888', marginTop: '0.2rem', display: 'block' }}>Échange WhatsApp</span>
+                </div>
+              </div>
+
+              {/* Actions Directes */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                <Link
+                  to="/sur-mesure"
+                  className="btn-stylist-inverse"
+                  style={{ padding: '0.95rem 2rem', fontSize: '0.78rem' }}
+                >
+                  <span>PRENDRE RENDEZ-VOUS AVEC LE STYLISTE</span>
+                  <ArrowRight size={14} />
                 </Link>
+
+                <a
+                  href={`https://wa.me/${STYLIST_WHATSAPP_NUMBER}?text=${encodeURIComponent("Bonjour AllFashion, je souhaite prendre rendez-vous avec le styliste pour une confection sur-mesure.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-stylist-outline"
+                  style={{ padding: '0.95rem 1.6rem', fontSize: '0.78rem', color: '#FFFFFF', borderColor: '#FFFFFF' }}
+                >
+                  <MessageCircle size={15} />
+                  <span>DISCUTER SUR WHATSAPP</span>
+                </a>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
       {/* =========================================================================
-          5. TRENDING NOW AVEC FILTRES (Inspiré de "Trending Now" de la maquette)
+          5. NOS RÉALISATIONS (REMPLACE LA DOUBLE SECTION DE PRODUITS)
           ========================================================================= */}
-      <section style={{ padding: '6rem 0', borderBottom: '1px solid #E5E5E5' }}>
+      <section style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container">
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.5rem' }}>
-              SÉLECTION EXCLUSIVE
-            </span>
-            <h2 style={{ fontSize: '2.6rem', fontFamily: 'var(--font-serif)' }}>
-              Pièces Phares
-            </h2>
-
-            {/* Onglets filtres stricts sans arrondis */}
-            <div style={{
-              display: 'inline-flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              marginTop: '1.8rem',
-              border: '1px solid #000000',
-              padding: '0.3rem'
-            }}>
-              {[
-                { id: 'ALL', label: 'Toutes les pièces' },
-                { id: 'NEW', label: 'Nouveautés' },
-                { id: 'BEST', label: 'Bestsellers' },
-                { id: 'SUR_MESURE', label: 'Sur-Mesure' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setSelectedFilter(tab.id)}
-                  style={{
-                    padding: '0.55rem 1.2rem',
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.12em',
-                    fontWeight: selectedFilter === tab.id ? 700 : 500,
-                    backgroundColor: selectedFilter === tab.id ? '#000000' : 'transparent',
-                    color: selectedFilter === tab.id ? '#FFFFFF' : '#000000',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
+          <div
+            data-aos="fade-up"
+            style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1rem', marginBottom: '3rem' }}
+          >
+            <div>
+              <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.4rem' }}>
+                PORTFOLIO & ATELIER
+              </span>
+              <h2 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 2.8rem)', fontFamily: 'var(--font-serif)' }}>
+                Nos Réalisations
+              </h2>
+              <p style={{ color: '#666666', fontSize: '0.95rem', marginTop: '0.4rem', maxWidth: '560px' }}>
+                Découvrez nos créations sur-mesure et nos pièces signatures confectionnées avec soin dans notre atelier.
+              </p>
             </div>
+            <Link to="/lookbook" className="link-editorial">
+              <span>Voir toute la galerie</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '1.8rem'
-          }}>
-            {trendingProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+          <div className="home-realisations-grid">
+            {REALISATIONS.map((item, idx) => (
+              <div
+                key={item.id}
+                data-aos="fade-up"
+                data-aos-delay={idx * 80}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  backgroundColor: '#FFFFFF'
+                }}
+              >
+                <div style={{
+                  position: 'relative',
+                  aspectRatio: '3/4',
+                  overflow: 'hidden',
+                  backgroundColor: '#F5F5F5',
+                  marginBottom: '0.85rem'
+                }}>
+                  <span style={{
+                    position: 'absolute',
+                    top: '0.8rem',
+                    left: '0.8rem',
+                    backgroundColor: '#000000',
+                    color: '#FFFFFF',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.62rem',
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                    padding: '0.3rem 0.6rem',
+                    zIndex: 2
+                  }}>
+                    {item.badge}
+                  </span>
+
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    loading="lazy"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: item.id === 'real-3' ? 'center 35%' : 'center center',
+                      transition: 'transform 0.45s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  />
+                </div>
+
+                <div>
+                  <span style={{
+                    display: 'block',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.68rem',
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                    color: '#888888',
+                    marginBottom: '0.2rem'
+                  }}>
+                    {item.category}
+                  </span>
+                  <h3 style={{
+                    fontFamily: 'var(--font-serif)',
+                    fontSize: '1.25rem',
+                    fontWeight: 600,
+                    lineHeight: 1.25,
+                    marginBottom: '0.35rem',
+                    color: '#000000'
+                  }}>
+                    {item.title}
+                  </h3>
+                  <p style={{
+                    fontSize: '0.82rem',
+                    color: '#666666',
+                    lineHeight: 1.45,
+                    marginBottom: '0.6rem'
+                  }}>
+                    {item.desc}
+                  </p>
+                  <a
+                    href={`https://wa.me/${STYLIST_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Bonjour AllFashion, je suis intéressé(e) par votre réalisation : "${item.title}". Pouvez-vous me donner plus de détails pour une confection ?`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link-editorial"
+                    style={{ fontSize: '0.72rem' }}
+                  >
+                    <span>Commander ce modèle</span>
+                    <ArrowRight size={12} />
+                  </a>
+                </div>
+              </div>
             ))}
           </div>
+
+          <div style={{ marginTop: '3.5rem', textAlign: 'center' }}>
+            <Link to="/lookbook" className="btn-stylist-dark" style={{ padding: '1rem 2.4rem' }}>
+              <span>EXPLORER LA GALERIE COMPLÈTE</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* =========================================================================
-          6. EDITORIAL LOOKBOOK AVEC HOTSPOTS (Directement inspiré de "The Spring Lookbook")
+          6. EDITORIAL LOOKBOOK ANIMÉ VIA AOS (MOTS SIMPLES & STYLE ÉPURÉ)
           ========================================================================= */}
-      <section style={{ padding: '6rem 0', backgroundColor: '#F8F8F8', borderBottom: '1px solid #E5E5E5' }}>
+      <section style={{ padding: 'clamp(3.5rem, 5vw, 5rem) 0', backgroundColor: '#F8F8F8', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container">
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-            gap: '4rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
+            gap: 'clamp(2.5rem, 5vw, 4.5rem)',
             alignItems: 'center'
           }}>
-            {/* Colonne Gauche : Image Lookbook avec Points Interactifs */}
-            <div style={{ position: 'relative', aspectRatio: '3/4', backgroundColor: '#000000', border: '1px solid #000000' }}>
+            <div
+              data-aos="fade-right"
+              style={{
+                position: 'relative',
+                aspectRatio: '3/4',
+                maxHeight: '620px',
+                width: '100%',
+                backgroundColor: '#EFEFEF',
+                border: 'none',
+                overflow: 'hidden'
+              }}
+            >
               <img
                 src={currentLook.image}
                 alt={currentLook.title}
@@ -364,11 +595,11 @@ export default function Home() {
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  filter: 'grayscale(100%)'
+                  filter: 'none',
+                  opacity: 1
                 }}
               />
 
-              {/* Hotspots cliquables sur la silhouette */}
               {currentLook.dots && currentLook.dots.map((dot) => (
                 <div
                   key={dot.id}
@@ -379,22 +610,20 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Colonne Droite : Explication du Look et détails des pièces */}
-            <div>
-              <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.6rem' }}>
-                ÉDITORIAL & DÉFILÉS
+            <div data-aos="fade-left">
+              <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.5rem' }}>
+                NOS STYLES & INSPIRATIONS
               </span>
 
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.8rem', lineHeight: 1.1, marginBottom: '1.2rem' }}>
-                Le Lookbook de l’Atelier.
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 3.8vw, 2.6rem)', lineHeight: 1.1, marginBottom: '0.8rem' }}>
+                Le Lookbook AllFashion
               </h2>
 
-              <p style={{ color: '#555555', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '2.5rem' }}>
-                Chaque création s’articule dans une composition étudiée où tombé de tissu et coupe nette dialoguent avec la silhouette.
+              <p style={{ color: '#555555', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.8rem' }}>
+                Découvrez nos tenues portées au quotidien. Des vêtements bien coupés, confortables et adaptés à votre style.
               </p>
 
-              {/* Liste des pièces du Look (comme dans la maquette DBY) */}
-              <div style={{ borderTop: '1px solid #CCCCCC', marginBottom: '2.5rem' }}>
+              <div style={{ borderTop: '1px solid #CCCCCC', marginBottom: '1.8rem' }}>
                 {currentLook.dots && currentLook.dots.map((item, idx) => (
                   <div
                     key={idx}
@@ -402,26 +631,25 @@ export default function Home() {
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      padding: '1.2rem 0',
+                      padding: '0.9rem 0',
                       borderBottom: '1px solid #E5E5E5'
                     }}
                   >
                     <div>
                       <span style={{ fontSize: '0.92rem', fontWeight: 600 }}>{item.title}</span>
-                      <span style={{ display: 'block', fontSize: '0.75rem', color: '#888888', fontFamily: 'var(--font-mono)' }}>
-                        Confection artisanale sur-mesure
+                      <span style={{ display: 'block', fontSize: '0.72rem', color: '#888888', fontFamily: 'var(--font-mono)' }}>
+                        Fait main sur-mesure
                       </span>
                     </div>
 
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.95rem', fontWeight: 700 }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.92rem', fontWeight: 700 }}>
                       {item.price}
                     </span>
                   </div>
                 ))}
               </div>
 
-              {/* Sélecteur de silhouette */}
-              <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.8rem' }}>
                 {LOOKBOOK_ITEMS.map((_, i) => (
                   <button
                     key={i}
@@ -436,7 +664,8 @@ export default function Home() {
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.75rem',
                       fontWeight: 600,
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
                     }}
                   >
                     0{i + 1}
@@ -445,7 +674,7 @@ export default function Home() {
               </div>
 
               <Link to="/lookbook" className="btn-stylist-dark">
-                EXPLORER LA GALERIE COMPLÈTE
+                VOIR TOUS LES LOOKS
               </Link>
             </div>
           </div>
@@ -453,9 +682,9 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
-          7. VALEURS & ENGAGEMENTS DE L'ATELIER (Repris des 5 icônes de la maquette)
+          7. VALEURS & ENGAGEMENTS DE L'ATELIER (4 Colonnes animées avec AOS)
           ========================================================================= */}
-      <section style={{ padding: '4.5rem 0', borderBottom: '1px solid #E5E5E5' }}>
+      <section style={{ padding: 'clamp(3rem, 5vw, 4.5rem) 0', backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container">
           <div style={{
             display: 'grid',
@@ -463,35 +692,35 @@ export default function Home() {
             gap: '2.5rem',
             textAlign: 'center'
           }}>
-            <div>
+            <div data-aos="fade-up" data-aos-delay="50">
               <Scissors size={24} style={{ margin: '0 auto 0.8rem', display: 'block' }} />
-              <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', marginBottom: '0.4rem' }}>Sur-Mesure Pur</h4>
-              <p style={{ fontSize: '0.8rem', color: '#666666', lineHeight: 1.5 }}>
-                Prise de plus de 20 points de mesure pour un patronage individuel exclusif.
+              <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', marginBottom: '0.3rem' }}>Sur-Mesure</h4>
+              <p style={{ fontSize: '0.82rem', color: '#666666', lineHeight: 1.5 }}>
+                Des vêtements adaptés exactement à votre taille et à vos envies.
               </p>
             </div>
 
-            <div>
+            <div data-aos="fade-up" data-aos-delay="150">
               <Clock size={24} style={{ margin: '0 auto 0.8rem', display: 'block' }} />
-              <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', marginBottom: '0.4rem' }}>Déplacement VIP</h4>
-              <p style={{ fontSize: '0.8rem', color: '#666666', lineHeight: 1.5 }}>
-                Le créateur se déplace directement chez vous ou au bureau à Cotonou.
+              <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', marginBottom: '0.3rem' }}>Déplacement Chez Vous</h4>
+              <p style={{ fontSize: '0.82rem', color: '#666666', lineHeight: 1.5 }}>
+                Le styliste vient chez vous ou au bureau à Cotonou pour vos mesures.
               </p>
             </div>
 
-            <div>
+            <div data-aos="fade-up" data-aos-delay="250">
               <Sparkles size={24} style={{ margin: '0 auto 0.8rem', display: 'block' }} />
-              <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', marginBottom: '0.4rem' }}>Studio Flocage</h4>
-              <p style={{ fontSize: '0.8rem', color: '#666666', lineHeight: 1.5 }}>
-                Marquage haute densité, flex velours et broderie couture pour pièces uniques.
+              <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', marginBottom: '0.3rem' }}>Personnalisation & Flocage</h4>
+              <p style={{ fontSize: '0.82rem', color: '#666666', lineHeight: 1.5 }}>
+                Ajoutez votre nom et numéro sur vos vêtements avec le style d’écriture de votre choix.
               </p>
             </div>
 
-            <div>
+            <div data-aos="fade-up" data-aos-delay="350">
               <ShieldCheck size={24} style={{ margin: '0 auto 0.8rem', display: 'block' }} />
-              <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', marginBottom: '0.4rem' }}>Suivi WhatsApp</h4>
-              <p style={{ fontSize: '0.8rem', color: '#666666', lineHeight: 1.5 }}>
-                Validation directe avec le styliste pour un accompagnement humain sur chaque commande.
+              <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', marginBottom: '0.3rem' }}>Contact Direct WhatsApp</h4>
+              <p style={{ fontSize: '0.82rem', color: '#666666', lineHeight: 1.5 }}>
+                Échangez directement avec le styliste pour toutes vos questions et commandes.
               </p>
             </div>
           </div>
@@ -499,40 +728,50 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
-          8. TÉMOIGNAGES CLIENTS (What Our Customers Say)
+          8. TÉMOIGNAGES CLIENTS
           ========================================================================= */}
-      <section style={{ padding: '6rem 0', backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E5E5' }}>
+      <section style={{ padding: 'clamp(3rem, 6vw, 5rem) 0', backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container" style={{ maxWidth: '850px', textAlign: 'center' }}>
-          <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.6rem' }}>
+          <span
+            data-aos="fade-down"
+            className="tracking-wide-caps"
+            style={{ color: '#888888', display: 'block', marginBottom: '0.5rem' }}
+          >
             EXPÉRIENCE CLIENT
           </span>
 
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', marginBottom: '2.5rem' }}>
+          <h2
+            data-aos="fade-up"
+            style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 2.6rem)', marginBottom: '2rem' }}
+          >
             Ce que disent nos clients
           </h2>
 
-          <div style={{ padding: '3rem', border: '1px solid #000000', backgroundColor: '#FBFBFB' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', marginBottom: '1.5rem' }}>
+          <div
+            data-aos="zoom-in"
+            style={{ padding: 'clamp(1.5rem, 3vw, 2.5rem)', border: '1px solid #000000', backgroundColor: '#FFFFFF' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.3rem', marginBottom: '1.2rem' }}>
               {[...Array(5)].map((_, i) => (
-                <Star key={i} size={16} fill="#000000" color="#000000" />
+                <Star key={i} size={15} fill="#000000" color="#000000" />
               ))}
             </div>
 
             <p style={{
               fontFamily: 'var(--font-serif)',
-              fontSize: '1.65rem',
-              lineHeight: 1.4,
+              fontSize: 'clamp(1.2rem, 2.2vw, 1.55rem)',
+              lineHeight: 1.45,
               fontStyle: 'italic',
-              marginBottom: '2rem',
+              marginBottom: '1.8rem',
               color: '#000000'
             }}>
               "{TESTIMONIALS[0].quote}"
             </p>
 
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block' }}>
               {TESTIMONIALS[0].author}
             </span>
-            <span style={{ fontSize: '0.75rem', color: '#666666', fontFamily: 'var(--font-mono)' }}>
+            <span style={{ fontSize: '0.72rem', color: '#666666', fontFamily: 'var(--font-mono)' }}>
               {TESTIMONIALS[0].role} • Client Vérifié
             </span>
           </div>
@@ -540,23 +779,26 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
-          9. FOLLOW OUR WORLD (Grille Instagram / Galerie de la maquette)
+          9. L'ATELIER EN IMAGES
           ========================================================================= */}
-      <section style={{ padding: '5rem 0', borderBottom: '1px solid #E5E5E5' }}>
+      <section style={{ padding: 'clamp(3rem, 5vw, 4.5rem) 0', backgroundColor: '#FFFFFF' }}>
         <div className="editorial-container">
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <div
+            data-aos="fade-up"
+            style={{ textAlign: 'center', marginBottom: '2.5rem' }}
+          >
             <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.4rem' }}>
               UNIVERS VISUEL
             </span>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem' }}>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3.5vw, 2.4rem)' }}>
               L’Atelier en Images
             </h2>
           </div>
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(5, 1fr)',
-            gap: '0.6rem'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '0.8rem'
           }}>
             {[
               '/assets/img/creation-1.jpg',
@@ -565,18 +807,25 @@ export default function Home() {
               '/assets/img/creation-4.jpg',
               '/assets/img/creation-5.jpg'
             ].map((img, i) => (
-              <div key={i} style={{ aspectRatio: '1/1', overflow: 'hidden', border: '1px solid #E5E5E5' }}>
+              <div
+                key={i}
+                data-aos="fade-up"
+                data-aos-delay={i * 80}
+                style={{ aspectRatio: '1/1', overflow: 'hidden', border: 'none' }}
+              >
                 <img
                   src={img}
                   alt={`Création ${i + 1}`}
+                  loading="lazy"
                   style={{
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    filter: 'grayscale(100%)',
+                    filter: 'none',
+                    opacity: 1,
                     transition: 'transform 0.4s ease'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.08)'}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.06)'}
                   onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 />
               </div>

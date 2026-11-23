@@ -4,10 +4,10 @@ export const STYLIST_WHATSAPP_NUMBER = "22900000000";
 // Collections / Catégories inspirées de la maquette (Shop by Category)
 export const CATEGORIES = [
   { id: 'ALL', name: 'Toutes les créations', count: 18, image: '/assets/img/creation-1.jpg' },
-  { id: 'HOMME', name: 'Homme / Tailoring', count: 8, image: '/assets/img/creation-1.jpg' },
-  { id: 'FEMME', name: 'Femme / Robes & Ensembles', count: 6, image: '/assets/img/creation-2.jpg' },
-  { id: 'SUR_MESURE', name: 'Cérémonie & Sur-Mesure', count: 5, image: '/assets/img/creation-3.jpg' },
-  { id: 'STREETWEAR', name: 'Street-Chic & Flocage', count: 7, image: '/assets/img/creation-4.jpg' },
+  { id: 'HOMME', name: 'Homme', count: 8, image: '/assets/img/creation-1.jpg' },
+  { id: 'FEMME', name: 'Femme', count: 6, image: '/assets/img/creation-2.jpg' },
+  { id: 'SUR_MESURE', name: 'Sur-Mesure', count: 5, image: '/assets/img/creation-3.jpg' },
+  { id: 'STREETWEAR', name: 'Streetwear & Flocage', count: 7, image: '/assets/img/creation-4.jpg' },
   { id: 'ACCESSOIRES', name: 'Éditions Limitées', count: 4, image: '/assets/img/creation-5.jpg' }
 ];
 
@@ -34,12 +34,12 @@ export const PRODUCTS = [
     ],
     sizes: ['Sur-Mesure', 'S', 'M', 'L', 'XL'],
     colors: ['Noir Ébène', 'Blanc Craie', 'Bleu Nuit'],
-    description: 'Ensemble structuré confectionné à la main dans notre atelier. Silhouette droite contemporaine, finitions intérieures en soie et entoilage traditionnel. Prise de mesures à domicile incluse.',
+    description: 'Costume élégant confectionné avec soin dans notre atelier. Coupe moderne et confortable, idéal pour mariages, galas et cérémonies. Le styliste peut venir prendre vos mesures directement chez vous.',
     details: [
-      'Laine froide et finitions satinées d’exception',
-      'Entoilage semi-traditionnel pour un tombé parfait',
-      'Boutons recouverts faits main',
-      'Confectionné sur-mesure ou en prêt-à-porter numéroté'
+      'Tissu léger et confortable de haute qualité',
+      'Coupe droite et tombé élégant',
+      'Finitions soignées à la main',
+      'Disponible en prêt-à-porter ou sur-mesure'
     ]
   },
   {
@@ -62,11 +62,11 @@ export const PRODUCTS = [
     ],
     sizes: ['Sur-Mesure', 'S', 'M', 'L'],
     colors: ['Monochrome Noir/Blanc', 'Noir Minimal'],
-    description: 'Une coupe architecturale qui allie rigueur des lignes et fluidité textile. Conçue pour les soirées et grandes réceptions.',
+    description: 'Tenue chic en noir et blanc, pensée pour vos soirées et grands événements. Coupe moderne qui met en valeur la silhouette.',
     details: [
-      'Patronage exclusif créé par le styliste',
-      'Coupe ajustée et tombé drapé fluide',
-      'Fermeture invisible et ourlets piqués main'
+      'Modèle exclusif imaginé par le styliste',
+      'Tissu fluide et agréable à porter',
+      'Finitions propres et discrètes'
     ]
   },
   {
@@ -89,11 +89,11 @@ export const PRODUCTS = [
     ],
     sizes: ['S', 'M', 'L', 'XL', 'Sur-Mesure'],
     colors: ['Noir Mat', 'Gris Graphite'],
-    description: 'La quintessence du tailoring urbain : épaules précises, plastron travaillé et poches passepoilées sans compromis.',
+    description: 'Veste moderne et bien coupée, facile à porter pour vos sorties chic ou professionnelles. Ajustable à votre taille exacte.',
     details: [
-      'Coupe nette et angulaire sans rondeur superflue',
-      'Doublure respirante ton sur ton',
-      'Adaptable à vos mesures exactes sur demande'
+      'Coupe nette et moderne',
+      'Doublure légère et respirante',
+      'Ajustable à vos mesures sur demande'
     ]
   },
   {
@@ -116,11 +116,11 @@ export const PRODUCTS = [
     ],
     sizes: ['M', 'L', 'XL', 'Oversize'],
     colors: ['Noir & Blanc', 'Noir Brillant'],
-    description: 'La rencontre entre l’énergie street et la minutie des ateliers d’artisanat. Compatible personnalisation et flocage sur-mesure.',
+    description: 'Ensemble décontracté et soigné, combinant style urbain et finitions d\'atelier. Personnalisable avec votre nom ou numéro en flocage.',
     details: [
-      'Coton lourd 380 GSM sélectionné',
-      'Marquage possible (broderie, flocage flex haute densité)',
-      'Coupe oversize moderne géométrique'
+      'Coton doux et épais de qualité',
+      'Personnalisation possible (flocage nom & numéro)',
+      'Coupe moderne et confortable'
     ]
   },
   {
@@ -143,11 +143,11 @@ export const PRODUCTS = [
     ],
     sizes: ['Sur-Mesure', 'M', 'L', 'XL'],
     colors: ['Noir Profond', 'Écru Naturel'],
-    description: 'Inspirée des traditions d’habillement repensées à travers une optique contemporaine et minimaliste.',
+    description: 'Tunique moderne inspirée des traditions, confectionnée avec soin pour allier confort et élégance lors de vos événements.',
     details: [
-      'Textile noble et fibres naturelles',
-      'Finitions coutures anglaises',
-      'Fabrication 100% atelier local'
+      'Tissu noble et agréable au toucher',
+      'Coupe confortable et stylée',
+      'Cousu artisanalement dans notre atelier'
     ]
   }
 ];
@@ -156,11 +156,12 @@ export const PRODUCTS = [
 export const LOOKBOOK_ITEMS = [
   {
     id: 'look-1',
-    title: 'Silhouette 01 — Tailoring Architectural',
+    title: 'Silhouette 01 — Veste Structurée & Pantalon Droit',
     category: 'TAILORING',
     categoryLabel: 'Tailoring & Cérémonie',
     image: '/assets/img/creation-1.jpg',
-    description: 'Lignes épurées, col structuré et géométrie nette.',
+    height: '560px',
+    description: 'Une coupe droite élégante, idéale pour un style chic et soigné.',
     dots: [
       { id: 'd1', x: 48, y: 32, title: 'Veste Structurée', price: '95 000 FCFA', slug: 'veste-tailleur-luxe-monochrome' },
       { id: 'd2', x: 52, y: 68, title: 'Pantalon Droit Coupe Nette', price: '50 000 FCFA', slug: 'ensemble-costume-croise-ivoire' }
@@ -168,46 +169,98 @@ export const LOOKBOOK_ITEMS = [
   },
   {
     id: 'look-2',
-    title: 'Silhouette 02 — Contraste Monochrome',
+    title: 'Silhouette 02 — Robe Noir & Blanc',
     category: 'COUTURE',
     categoryLabel: 'Haute Couture',
     image: '/assets/img/creation-2.jpg',
-    description: 'Jeux d’ombres et de lumières dans une recherche de pureté absolue.',
+    height: '420px',
+    description: 'Un jeu de contrastes noir et blanc, fluide et raffiné pour vos soirées.',
     dots: [
       { id: 'd3', x: 50, y: 40, title: 'Robe Sculpturale', price: '145 000 FCFA', slug: 'robe-sculpturale-contrast-graphique' }
     ]
   },
   {
     id: 'look-3',
-    title: 'Silhouette 03 — Prestige & Matières',
+    title: 'Silhouette 03 — Costume de Cérémonie',
     category: 'CEREMONIE',
     categoryLabel: 'Cérémonie Sur-Mesure',
     image: '/assets/img/creation-3.jpg',
-    description: 'Une pièce pensée pour marquer les mémoires lors des événements d’exception.',
+    height: '680px',
+    description: 'Un costume habillé pour briller lors de vos événements importants.',
     dots: [
       { id: 'd4', x: 46, y: 35, title: 'Costume Croisé Cérémonie', price: '185 000 FCFA', slug: 'ensemble-costume-croise-ivoire' }
     ]
   },
   {
     id: 'look-4',
-    title: 'Silhouette 04 — L’Esprit Capsule',
+    title: 'Silhouette 04 — Ensemble Street-Chic',
     category: 'STREETWEAR',
     categoryLabel: 'Streetwear Éditorial',
     image: '/assets/img/creation-4.jpg',
-    description: 'Une interprétation brute et raffinée des silhouettes urbaines contemporaines.',
+    height: '380px',
+    description: 'Un style urbain confortable et moderne, conçu avec des finitions soignées.',
     dots: [
       { id: 'd5', x: 50, y: 45, title: 'Ensemble Street-Chic', price: '75 000 FCFA', slug: 'ensemble-street-couture-minimaliste' }
     ]
   },
   {
     id: 'look-5',
-    title: 'Silhouette 05 — Équilibre & Matière',
-    category: 'SUR_MESURE',
-    categoryLabel: 'Sur-Mesure',
+    title: 'Silhouette 05 — Tunique Moderne',
+    category: 'TAILORING',
+    categoryLabel: 'Atelier & Sur-Mesure',
     image: '/assets/img/creation-5.jpg',
-    description: 'Chaque couture suit la dynamique du corps sans superflu.',
+    height: '520px',
+    description: 'Une tenue souple et agréable, parfaitement ajustée à votre morphologie.',
     dots: [
       { id: 'd6', x: 52, y: 42, title: 'Tunique Atelier', price: '110 000 FCFA', slug: 'tunique-ceremonie-artisanale' }
+    ]
+  },
+  {
+    id: 'look-6',
+    title: 'Silhouette 06 — Veste Habillée',
+    category: 'COUTURE',
+    categoryLabel: 'Haute Couture',
+    image: '/assets/img/creation-1.jpg',
+    height: '640px',
+    description: 'Une veste de créateur élégante, travaillée à la main dans notre atelier.',
+    dots: [
+      { id: 'd7', x: 50, y: 35, title: 'Veste Haute Couture', price: '115 000 FCFA', slug: 'veste-tailleur-luxe-monochrome' }
+    ]
+  },
+  {
+    id: 'look-7',
+    title: 'Silhouette 07 — Tunique de Fête',
+    category: 'CEREMONIE',
+    categoryLabel: 'Cérémonie Sur-Mesure',
+    image: '/assets/img/creation-3.jpg',
+    height: '440px',
+    description: 'Des tissus soyeux et des boutons discrets pour vos grandes occasions.',
+    dots: [
+      { id: 'd8', x: 45, y: 40, title: 'Tunique Cérémonie', price: '135 000 FCFA', slug: 'tunique-ceremonie-artisanale' }
+    ]
+  },
+  {
+    id: 'look-8',
+    title: 'Silhouette 08 — Pièce Personnalisée',
+    category: 'STREETWEAR',
+    categoryLabel: 'Streetwear Éditorial',
+    image: '/assets/img/creation-4.jpg',
+    height: '600px',
+    description: 'Un sweat moderne floqué avec votre nom ou numéro personnalisé.',
+    dots: [
+      { id: 'd9', x: 50, y: 50, title: 'Sweat Flocage Signature', price: '65 000 FCFA', slug: 'ensemble-street-couture-minimaliste' }
+    ]
+  },
+  {
+    id: 'look-9',
+    title: 'Silhouette 09 — Allure Noire Chic',
+    category: 'TAILORING',
+    categoryLabel: 'Tailoring & Cérémonie',
+    image: '/assets/img/creation-2.jpg',
+    height: '360px',
+    description: 'L’élégance du noir pour une allure discrète, moderne et raffinée.',
+    dots: [
+      { id: 'd10', x: 50, y: 45, title: 'Ensemble Soirée Minimaliste', price: '140 000 FCFA', slug: 'robe-sculpturale-contrast-graphique' }
     ]
   }
 ];
@@ -217,22 +270,22 @@ export const TESTIMONIALS = [
   {
     id: 'test-1',
     author: 'Jean-Marc D.',
-    role: 'Costume 3 Pièces Cérémonie',
-    quote: 'La précision de coupe est impressionnante. Le créateur s’est déplacé à mon domicile pour la prise de mesures avec ses nuanciers d’étoffes. Le résultat est sans comparaison avec ce que l’on trouve en boutique standard.',
+    role: 'Costume 3 Pièces',
+    quote: 'Le résultat est impeccable. Le styliste est venu directement chez moi pour prendre mes mesures avec ses tissus. La tenue me va à la perfection.',
     rating: 5
   },
   {
     id: 'test-2',
     author: 'Aurélie K.',
-    role: 'Robe de Réception Sur-Mesure',
-    quote: 'Une allure architecturale, pure, sans aucun artifice inutile. On sent l’exigence du travail d’atelier dans chaque couture.',
+    role: 'Robe de Soirée Sur-Mesure',
+    quote: 'Très belle tenue, élégante et agréable à porter. On voit tout de suite la qualité du travail et le soin apporté à chaque couture.',
     rating: 5
   },
   {
     id: 'test-3',
     author: 'Stéphane M.',
-    role: 'Collection Capsule & Flocage',
-    quote: 'Le service de personnalisation et de flocage a sublimé notre projet de marque. Rapidité exemplaire et communication directe par WhatsApp très appréciable.',
+    role: 'Tenues avec Flocage',
+    quote: 'Le flocage avec notre nom et numéro est très propre et résistant. La communication directe par WhatsApp avec le styliste est super pratique.',
     rating: 5
   }
 ];

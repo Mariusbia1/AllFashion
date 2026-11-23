@@ -55,13 +55,13 @@ export default function Bespoke() {
       <section style={{ backgroundColor: '#000000', color: '#FFFFFF', padding: '6rem 0', borderBottom: '1px solid #000000' }}>
         <div className="editorial-container">
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888888', display: 'block', marginBottom: '0.8rem' }}>
-            TAILORING DE PRESTIGE & PATRONAGE INDIVIDUEL
+            SUR-MESURE & DÉPLACEMENT
           </span>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.8rem, 6vw, 4.5rem)', lineHeight: 1.05, marginBottom: '1.5rem', color: '#FFFFFF' }}>
-            L’Expérience du Sur-Mesure.
+            Votre Tenue Sur-Mesure.
           </h1>
           <p style={{ color: '#CCCCCC', fontSize: '1.05rem', maxWidth: '640px', lineHeight: 1.6 }}>
-            Chaque silhouette est sculptée à votre morphologie dans le respect des traditions de coupe. Le créateur se déplace directement chez vous à Cotonou ou vous accueille à l’atelier.
+            Un vêtement adapté exactement à votre taille et à vos envies. Le styliste se déplace directement chez vous ou au bureau à Cotonou avec ses tissus, ou vous reçoit à l’atelier.
           </p>
         </div>
       </section>
@@ -72,25 +72,25 @@ export default function Bespoke() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2.5rem' }}>
             <div>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.2rem', fontWeight: 700, color: '#888888' }}>01</span>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>Consultation & Étoffes</h3>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>Choix du Modèle & Tissus</h3>
               <p style={{ fontSize: '0.85rem', color: '#555555', lineHeight: 1.6 }}>
-                Définition de la ligne, choix des coupes, doublures et étoffes nobles présentées par le styliste.
+                On échange sur votre projet et le styliste vous présente des tissus de qualité adaptés à votre événement.
               </p>
             </div>
 
             <div>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.2rem', fontWeight: 700, color: '#888888' }}>02</span>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>Prise de Mesures VIP</h3>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>Prise de Mesures</h3>
               <p style={{ fontSize: '0.85rem', color: '#555555', lineHeight: 1.6 }}>
-                Plus de 20 points morphologiques mesurés à votre domicile ou à l’atelier pour un patron unique.
+                Le styliste prend toutes vos mesures directement chez vous ou à l’atelier pour un ajustement parfait.
               </p>
             </div>
 
             <div>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.2rem', fontWeight: 700, color: '#888888' }}>03</span>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>Confection Artisanale</h3>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>Couture à l'Atelier</h3>
               <p style={{ fontSize: '0.85rem', color: '#555555', lineHeight: 1.6 }}>
-                Assemblage minutieux, plastron traditionnel et finitions pérées à la main dans notre atelier.
+                Chaque pièce est découpée et confectionnée à la main avec passion et minutie.
               </p>
             </div>
 
@@ -98,7 +98,7 @@ export default function Bespoke() {
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.2rem', fontWeight: 700, color: '#888888' }}>04</span>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>Essayage & Ajustements</h3>
               <p style={{ fontSize: '0.85rem', color: '#555555', lineHeight: 1.6 }}>
-                Séance d’essayage finale et ajustements de précision jusqu'à perfection absolue du tombé.
+                Séance d’essayage pour vérifier que le vêtement tombe à la perfection, avec retouches incluses.
               </p>
             </div>
           </div>
@@ -110,31 +110,31 @@ export default function Bespoke() {
         <div className="editorial-container">
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-            gap: '4rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
+            gap: 'clamp(2rem, 4vw, 4rem)',
             alignItems: 'start'
           }}>
             {/* Colonne Gauche : Explication */}
             <div>
               <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.6rem' }}>
-                RÉSERVATION EN LIGNE
+                RÉSERVATION SIMPLE
               </span>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.8rem', lineHeight: 1.1, marginBottom: '1.5rem' }}>
-                Planifier Votre Séance de Mesure
+                Prendre Rendez-Vous avec le Styliste
               </h2>
               <p style={{ color: '#555555', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '2rem' }}>
-                Sélectionnez votre créneau selon votre emploi du temps. Le créateur apporte ses nuanciers d’étoffes et tout le matériel nécessaire pour donner vie à votre projet.
+                Choisissez la date et le créneau qui vous conviennent. Le styliste vient avec ses échantillons de tissus et tout le nécessaire pour créer votre vêtement.
               </p>
 
               <div style={{ padding: '1.8rem', border: '1px solid #000000', backgroundColor: '#F8F8F8', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
                   <MapPin size={18} />
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase' }}>
-                    DÉPLACEMENT DIRECT À DOMICILE / BUREAU
+                    DÉPLACEMENT DIRECT CHEZ VOUS OU AU BUREAU
                   </span>
                 </div>
                 <p style={{ fontSize: '0.85rem', color: '#666666', lineHeight: 1.5 }}>
-                  Vous n'avez pas besoin de vous déplacer : le créateur se rend directement à votre convenance à Cotonou et ses environs.
+                  Pas besoin de vous déplacer : le styliste se déplace à votre adresse à Cotonou et ses environs.
                 </p>
               </div>
 
@@ -232,7 +232,7 @@ export default function Bespoke() {
                 </div>
 
                 {/* Date & Heure */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1rem' }}>
                   <div>
                     <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                       Date souhaitée *
@@ -264,7 +264,7 @@ export default function Bespoke() {
                 </div>
 
                 {/* Coordonnées */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1rem' }}>
                   <div>
                     <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                       Votre Nom & Prénom *

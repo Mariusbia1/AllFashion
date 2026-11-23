@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Eye } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
   const mainImage = product.images && product.images[0] ? product.images[0] : '/assets/img/creation-1.jpg';
-  const hoverImage = product.images && product.images[1] ? product.images[1] : mainImage;
 
   return (
     <div
@@ -14,22 +12,21 @@ export default function ProductCard({ product }) {
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: '#FFFFFF',
-        border: '1px solid #E5E5E5',
-        transition: 'border-color 0.25s ease'
+        border: 'none',
+        padding: '0'
       }}
-      onMouseEnter={(e) => e.currentTarget.style.borderColor = '#000000'}
-      onMouseLeave={(e) => e.currentTarget.style.borderColor = '#E5E5E5'}
     >
-      {/* Conteneur Image avec proportions élégantes 3:4 */}
+      {/* Conteneur Image net, sans flou, sans voile blanc, sans bordure */}
       <div
         style={{
           position: 'relative',
           aspectRatio: '3/4',
           overflow: 'hidden',
-          backgroundColor: '#F5F5F5'
+          backgroundColor: '#F5F5F5',
+          border: 'none'
         }}
       >
-        {/* Badge supérieur */}
+        {/* Badge supérieur discret */}
         {product.badge && (
           <div
             style={{
@@ -39,20 +36,38 @@ export default function ProductCard({ product }) {
               zIndex: 5
             }}
           >
-            <span className="badge-minimal-dark">{product.badge}</span>
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.68rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                padding: '0.35rem 0.65rem',
+                backgroundColor: '#FFFFFF',
+                color: '#000000',
+                border: '1px solid #000000',
+                display: 'inline-block',
+                fontWeight: 600
+              }}
+            >
+              {product.badge}
+            </span>
           </div>
         )}
 
-        {/* Image avec zoom subtil au survol */}
+        {/* Image 100% nette */}
         <Link to={`/produit/${product.slug}`} style={{ display: 'block', width: '100%', height: '100%' }}>
           <img
             src={mainImage}
             alt={product.name}
+            loading="lazy"
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+              filter: 'none',
+              opacity: 1,
+              transition: 'transform 0.4s ease'
             }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -60,87 +75,88 @@ export default function ProductCard({ product }) {
         </Link>
       </div>
 
-      {/* Informations Produit (Inspiré fidèlement de la maquette DBY) */}
-      <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
-        <div>
-          <span
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.65rem',
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              color: '#888888',
-              display: 'block',
-              marginBottom: '0.3rem'
-            }}
-          >
-            {product.categoryLabel || 'Collection Atelier'}
-          </span>
-
-          <Link
-            to={`/produit/${product.slug}`}
-            style={{
-              textDecoration: 'none',
-              color: '#000000'
-            }}
-          >
-            <h3
-              style={{
-                fontFamily: 'var(--font-serif)',
-                fontSize: '1.25rem',
-                fontWeight: 600,
-                lineHeight: 1.25,
-                marginBottom: '0.5rem'
-              }}
-            >
-              {product.name}
-            </h3>
-          </Link>
-        </div>
-
-        {/* Prix et Action */}
-        <div style={{ marginTop: '1rem', paddingTop: '0.8rem', borderTop: '1px solid #F0F0F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
+      {/* Informations Produit : Nom, Catégorie, Prix, Bouton texte pur sans icône */}
+      <div style={{ paddingTop: '1.2rem', paddingBottom: '0.5rem', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.8rem' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <span
               style={{
                 fontFamily: 'var(--font-mono)',
-                fontSize: '0.95rem',
-                fontWeight: 700,
+                fontSize: '0.68rem',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: '#888888',
+                display: 'block',
+                marginBottom: '0.3rem'
+              }}
+            >
+              {product.categoryLabel || 'Atelier'}
+            </span>
+
+            <Link
+              to={`/produit/${product.slug}`}
+              style={{
+                textDecoration: 'none',
                 color: '#000000'
               }}
             >
-              {product.priceFormatted}
-            </span>
-            {product.oldPrice && (
+              <h3
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: 'clamp(1.2rem, 2vw, 1.45rem)',
+                  fontWeight: 600,
+                  lineHeight: 1.25,
+                  marginBottom: '0.4rem',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {product.name}
+              </h3>
+            </Link>
+
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem' }}>
               <span
                 style={{
                   fontFamily: 'var(--font-mono)',
-                  fontSize: '0.75rem',
-                  textDecoration: 'line-through',
-                  color: '#999999',
-                  marginLeft: '0.5rem'
+                  fontSize: '1.05rem',
+                  fontWeight: 700,
+                  color: '#000000'
                 }}
               >
-                {product.oldPrice}
+                {product.priceFormatted}
               </span>
-            )}
+              {product.oldPrice && (
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.8rem',
+                    textDecoration: 'line-through',
+                    color: '#999999'
+                  }}
+                >
+                  {product.oldPrice}
+                </span>
+              )}
+            </div>
           </div>
 
+          {/* Bouton Panier SANS ICÔNE : gain de place maximal */}
           <button
             type="button"
             onClick={() => addItem(product, product.sizes ? product.sizes[0] : 'Sur-Mesure')}
             className="btn-stylist-outline"
             style={{
-              padding: '0.45rem 0.8rem',
-              fontSize: '0.68rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem'
+              padding: '0.55rem 0.9rem',
+              fontSize: '0.72rem',
+              letterSpacing: '0.12em',
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              flexShrink: 0
             }}
             title="Ajouter au panier"
           >
-            <ShoppingBag size={13} />
-            <span>AJOUTER</span>
+            AJOUTER
           </button>
         </div>
       </div>
