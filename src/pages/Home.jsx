@@ -54,23 +54,23 @@ export default function Home() {
         overflow: 'hidden',
         color: '#FFFFFF'
       }}>
-        {/* IMAGE BACKGROUND AVEC LÉGER FLOU */}
+        {/* IMAGE BACKGROUND : MATÉRIELS DE COUTURE & ATELIER (CISEAUX TAILLEUR, MÈTRE RUBAN, TISSUS) SANS PERSONNE */}
         <div style={{
           position: 'absolute',
           inset: '-20px',
-          backgroundImage: `url('/assets/img/creation-1.jpg')`,
+          backgroundImage: `url('/images/hero-tailor-tools.jpg')`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center 25%',
-          filter: 'blur(3.5px) brightness(0.9)',
+          backgroundPosition: 'center 42%',
+          filter: 'blur(2px) brightness(0.68)',
           transform: 'scale(1.04)',
           zIndex: 1
         }} />
 
-        {/* OVERLAY VOILE NOIR SUBTIL */}
+        {/* OVERLAY VOILE NOIR SUBTIL POUR CONTRASTE PARFAIT DU TEXTE */}
         <div style={{
           position: 'absolute',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.42)',
+          backgroundColor: 'rgba(0, 0, 0, 0.46)',
           zIndex: 2
         }} />
 
