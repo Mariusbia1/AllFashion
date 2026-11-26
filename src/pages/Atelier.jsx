@@ -76,7 +76,7 @@ export default function Atelier() {
             </div>
 
             <div style={{ padding: '2rem 1.5rem', border: '1px solid #000000' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '2.4rem', fontWeight: 700, display: 'block' }}>VIP</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '2.4rem', fontWeight: 700, display: 'block' }}>Domicile</span>
               <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.15rem', marginTop: '0.4rem', display: 'block', fontWeight: 600 }}>Déplacement Chez Vous</span>
               <p style={{ fontSize: '0.85rem', color: '#666666', marginTop: '0.3rem' }}>Le styliste vient à votre domicile ou bureau à Cotonou.</p>
             </div>

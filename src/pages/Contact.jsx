@@ -25,18 +25,16 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    subject: 'Question générale',
     message: ''
   });
   const [openFaq, setOpenFaq] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    let msg = `*MESSAGE DE CONTACT — SITE INTERNET*\n`;
+    let msg = `*MESSAGE DE CONTACT — ALLFASHION*\n`;
     msg += `-----------------------------------\n`;
     msg += `De : ${formData.name}\n`;
     msg += `Téléphone : ${formData.phone}\n`;
-    msg += `Objet : ${formData.subject}\n`;
     msg += `-----------------------------------\n`;
     msg += `Message : ${formData.message}\n`;
 
@@ -102,8 +100,8 @@ export default function Contact() {
                   <div>
                     <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 700 }}>Atelier & Showroom</h4>
                     <p style={{ fontSize: '0.85rem', color: '#555555', marginTop: '0.2rem' }}>
-                      Cotonou, Bénin (Haie Vive / Cadjehoun)<br />
-                      Déplacement VIP possible sur tout Cotonou & environs.
+                       Cotonou, Bénin (Haie Vive / Cadjehoun)<br />
+                       Déplacement possible chez vous sur tout Cotonou & environs.
                     </p>
                   </div>
                 </div>
@@ -137,11 +135,40 @@ export default function Contact() {
 
             {/* Colonne Droite : Formulaire */}
             <div style={{ padding: '2.5rem', border: '2px solid #000000', backgroundColor: '#FFFFFF' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', marginBottom: '1.5rem' }}>
-                Transmettre un Message
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', marginBottom: '1rem' }}>
+                Échanger avec le Styliste
               </h3>
 
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+              {/* Bouton Direct WhatsApp 1 Clic */}
+              <a
+                href={`https://wa.me/${STYLIST_WHATSAPP_NUMBER}?text=${encodeURIComponent("Bonjour AllFashion, je vous contacte pour échanger directement avec le styliste.")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-stylist-dark"
+                style={{
+                  width: '100%',
+                  padding: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.6rem',
+                  marginBottom: '1.5rem',
+                  textDecoration: 'none'
+                }}
+              >
+                <MessageSquare size={17} />
+                <span>DISCUTER EN DIRECT SUR WHATSAPP</span>
+              </a>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem' }}>
+                <div style={{ flex: 1, height: '1px', backgroundColor: '#E5E5E5' }}></div>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888888', textTransform: 'uppercase' }}>
+                  OU ENVOYER UN MESSAGE
+                </span>
+                <div style={{ flex: 1, height: '1px', backgroundColor: '#E5E5E5' }}></div>
+              </div>
+
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                     Votre Nom & Prénom *
@@ -172,27 +199,11 @@ export default function Contact() {
 
                 <div>
                   <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                    Objet de votre demande
-                  </label>
-                  <select
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="input-stylist"
-                  >
-                    <option value="Question sur le prêt-à-porter">Question sur le prêt-à-porter</option>
-                    <option value="Demande de confection sur-mesure">Demande de confection sur-mesure</option>
-                    <option value="Projet de flocage / personnalisation">Projet de flocage / personnalisation</option>
-                    <option value="Autre demande">Autre demande</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                     Votre Message *
                   </label>
                   <textarea
-                    rows="4"
-                    placeholder="Détaillez votre projet..."
+                    rows="3"
+                    placeholder="Posez votre question ou décrivez votre besoin..."
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className="input-stylist"
@@ -202,11 +213,11 @@ export default function Contact() {
 
                 <button
                   type="submit"
-                  className="btn-stylist-dark"
-                  style={{ width: '100%', padding: '1.1rem' }}
+                  className="btn-stylist-outline"
+                  style={{ width: '100%', padding: '1rem' }}
                 >
                   <Send size={15} />
-                  <span>ENVOYER SUR WHATSAPP</span>
+                  <span>ENVOYER MON MESSAGE SUR WHATSAPP</span>
                 </button>
               </form>
             </div>

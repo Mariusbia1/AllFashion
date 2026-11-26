@@ -1,14 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { PRODUCTS, CATEGORIES } from '../data/products';
 
 export default function Shop() {
-  const [selectedCat, setSelectedCat] = useState('ALL');
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get('category');
+  const [selectedCat, setSelectedCat] = useState(categoryParam || 'ALL');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('default');
   const [selectedSize, setSelectedSize] = useState('ALL');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedCat(categoryParam);
+    }
+  }, [categoryParam]);
 
   const availableSizes = ['ALL', 'S', 'M', 'L', 'XL', 'Sur-Mesure'];
 

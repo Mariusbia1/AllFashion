@@ -5,22 +5,20 @@ import { STYLIST_WHATSAPP_NUMBER } from '../data/products';
 export default function Bespoke() {
   const [locationType, setLocationType] = useState('domicile');
   const [address, setAddress] = useState('');
-  const [garmentType, setGarmentType] = useState('Costume 3 Pièces');
   const [dateSlot, setDateSlot] = useState('');
-  const [timeSlot, setTimeSlot] = useState('14:00 - 16:00');
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
-  const [notes, setNotes] = useState('');
+  const [garmentIdea, setGarmentIdea] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!clientName || !clientPhone || !dateSlot) {
-      alert('Veuillez remplir votre nom, numéro WhatsApp et date souhaitée.');
+    if (!clientName || !clientPhone) {
+      alert('Veuillez renseigner votre nom et votre numéro WhatsApp.');
       return;
     }
 
     if (locationType === 'domicile' && !address.trim()) {
-      alert('Veuillez renseigner votre adresse pour le déplacement à domicile.');
+      alert('Veuillez préciser votre quartier ou adresse pour le déplacement.');
       return;
     }
 
@@ -32,18 +30,18 @@ export default function Bespoke() {
     msg += `-----------------------------------\n`;
     msg += `Client : ${clientName}\n`;
     msg += `Téléphone : ${clientPhone}\n`;
-    msg += `Lieu : ${locationType === 'domicile' ? 'Déplacement VIP à Domicile / Bureau' : "À l'Atelier du Styliste à Cotonou"}\n`;
-    if (locationType === 'domicile') {
-      msg += `Adresse exacte : ${address}\n`;
+    msg += `Lieu : ${locationType === 'domicile' ? 'Déplacement à Domicile / Bureau' : "À l'Atelier du Styliste à Cotonou"}\n`;
+    if (locationType === 'domicile' && address.trim()) {
+      msg += `Quartier / Adresse : ${address.trim()}\n`;
     }
-    msg += `Tenue souhaitée : ${garmentType}\n`;
-    msg += `Date souhaitée : ${dateSlot}\n`;
-    msg += `Créneau horaire : ${timeSlot}\n`;
-    if (notes.trim()) {
-      msg += `Précisions : ${notes}\n`;
+    if (dateSlot) {
+      msg += `Date souhaitée : ${dateSlot}\n`;
+    }
+    if (garmentIdea.trim()) {
+      msg += `Idée de tenue : ${garmentIdea.trim()}\n`;
     }
     msg += `-----------------------------------\n`;
-    msg += `Bonjour, je souhaite bloquer ce créneau pour ma consultation et prise de mesure. Merci de me confirmer vos disponibilités.`;
+    msg += `Bonjour AllFashion, je souhaite fixer un rendez-vous avec le styliste pour une prise de mesure. Pouvez-vous me confirmer vos disponibilités ?`;
 
     window.open(`https://wa.me/${STYLIST_WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
@@ -157,14 +155,14 @@ export default function Bespoke() {
                 {/* 1. Lieu du RDV */}
                 <div>
                   <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.5rem' }}>
-                    1. Lieu de consultation
+                    1. Où préférez-vous le rendez-vous ?
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                     <button
                       type="button"
                       onClick={() => setLocationType('domicile')}
                       style={{
-                        padding: '0.8rem',
+                        padding: '0.85rem 0.5rem',
                         border: '1px solid #000000',
                         backgroundColor: locationType === 'domicile' ? '#000000' : 'transparent',
                         color: locationType === 'domicile' ? '#FFFFFF' : '#000000',
@@ -174,13 +172,13 @@ export default function Bespoke() {
                         cursor: 'pointer'
                       }}
                     >
-                      Déplacement à Domicile / Bureau
+                      Chez moi à Cotonou
                     </button>
                     <button
                       type="button"
                       onClick={() => setLocationType('atelier')}
                       style={{
-                        padding: '0.8rem',
+                        padding: '0.85rem 0.5rem',
                         border: '1px solid #000000',
                         backgroundColor: locationType === 'atelier' ? '#000000' : 'transparent',
                         color: locationType === 'atelier' ? '#FFFFFF' : '#000000',
@@ -190,20 +188,20 @@ export default function Bespoke() {
                         cursor: 'pointer'
                       }}
                     >
-                      À l'Atelier du Styliste
+                      À l’Atelier
                     </button>
                   </div>
                 </div>
 
-                {/* Adresse si domicile */}
+                {/* Quartier si domicile */}
                 {locationType === 'domicile' && (
                   <div>
                     <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                      Adresse de déplacement à Cotonou & Environs *
+                      Votre quartier ou adresse à Cotonou *
                     </label>
                     <input
                       type="text"
-                      placeholder="Ex: Cotonou, Haie Vive, Rue 340..."
+                      placeholder="Ex: Haie Vive, Cadjehoun, Fidjrossè..."
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       className="input-stylist"
@@ -212,80 +210,36 @@ export default function Bespoke() {
                   </div>
                 )}
 
-                {/* 2. Type de tenue */}
+                {/* 2. Date souhaitée */}
                 <div>
                   <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.4rem' }}>
-                    2. Type de vêtement souhaité
+                    2. Date souhaitée (Facultatif)
                   </label>
-                  <select
-                    value={garmentType}
-                    onChange={(e) => setGarmentType(e.target.value)}
+                  <input
+                    type="date"
+                    value={dateSlot}
+                    onChange={(e) => setDateSlot(e.target.value)}
                     className="input-stylist"
-                  >
-                    <option value="Costume 3 Pièces (Veste, Gilet, Pantalon)">Costume 3 Pièces (Veste, Gilet, Pantalon)</option>
-                    <option value="Costume 2 Pièces Tailleur">Costume 2 Pièces Tailleur</option>
-                    <option value="Veste / Blazer de Cérémonie">Veste / Blazer de Cérémonie</option>
-                    <option value="Robe de Soirée / Mariage">Robe de Soirée / Mariage</option>
-                    <option value="Tenue Traditionnelle Moderne">Tenue Traditionnelle Moderne</option>
-                    <option value="Tenue de Scène / Spectacle">Tenue de Scène / Spectacle</option>
-                  </select>
+                  />
                 </div>
 
-                {/* Date & Heure */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                      Date souhaitée *
-                    </label>
-                    <input
-                      type="date"
-                      value={dateSlot}
-                      onChange={(e) => setDateSlot(e.target.value)}
-                      className="input-stylist"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                      Créneau horaire
-                    </label>
-                    <select
-                      value={timeSlot}
-                      onChange={(e) => setTimeSlot(e.target.value)}
-                      className="input-stylist"
-                    >
-                      <option value="10:00 - 12:00">Matin (10h00 - 12h00)</option>
-                      <option value="14:00 - 16:00">Après-midi (14h00 - 16h00)</option>
-                      <option value="16:30 - 18:30">Fin d'après-midi (16h30 - 18h30)</option>
-                      <option value="19:00 - 21:00">Soirée VIP (19h00 - 21h00)</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Coordonnées */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                      Votre Nom & Prénom *
-                    </label>
+                {/* 3. Vos Coordonnées */}
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.4rem' }}>
+                    3. Vos coordonnées
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '0.8rem' }}>
                     <input
                       type="text"
-                      placeholder="Ex: Jean DUPONT"
+                      placeholder="Votre Nom & Prénom *"
                       value={clientName}
                       onChange={(e) => setClientName(e.target.value)}
                       className="input-stylist"
                       required
                     />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                      Numéro WhatsApp *
-                    </label>
                     <input
                       type="tel"
-                      placeholder="+229 XX XX XX XX"
+                      placeholder="Numéro WhatsApp *"
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
                       className="input-stylist"
@@ -294,15 +248,16 @@ export default function Bespoke() {
                   </div>
                 </div>
 
+                {/* Idée de vêtement simple */}
                 <div>
                   <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                    Remarques ou événement particulier
+                    Une idée de tenue en tête ? (Optionnel)
                   </label>
-                  <textarea
-                    rows="2"
-                    placeholder="Ex: Cérémonie prévue le mois prochain, préférences de matière..."
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
+                  <input
+                    type="text"
+                    placeholder="Ex: Costume 3 pièces, robe de soirée, tunique..."
+                    value={garmentIdea}
+                    onChange={(e) => setGarmentIdea(e.target.value)}
                     className="input-stylist"
                   />
                 </div>
@@ -310,10 +265,10 @@ export default function Bespoke() {
                 <button
                   type="submit"
                   className="btn-stylist-dark"
-                  style={{ width: '100%', padding: '1.1rem' }}
+                  style={{ width: '100%', padding: '1.05rem', marginTop: '0.4rem' }}
                 >
                   <Send size={15} />
-                  <span>TRANSMETTRE LA DEMANDE SUR WHATSAPP</span>
+                  <span>PRENDRE RENDEZ-VOUS SUR WHATSAPP</span>
                 </button>
               </form>
             </div>

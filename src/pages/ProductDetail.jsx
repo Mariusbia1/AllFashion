@@ -8,7 +8,7 @@ import ProductCard from '../components/ProductCard';
 export default function ProductDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const { addItem, setIsCartOpen } = useCart();
 
   const product = PRODUCTS.find((p) => p.slug === slug) || PRODUCTS[0];
   const [selectedImage, setSelectedImage] = useState(product.images ? product.images[0] : '/assets/img/creation-1.jpg');
@@ -181,10 +181,13 @@ export default function ProductDetail() {
                   </button>
                 </div>
 
-                {/* Bouton Ajouter au Panier (texte seul sans icône pour gagner de la place) */}
+                {/* Bouton Ajouter au Panier (ouvre directement le tiroir panier) */}
                 <button
                   type="button"
-                  onClick={() => addItem(product, selectedSize, quantity)}
+                  onClick={() => {
+                    addItem(product, selectedSize, quantity);
+                    setIsCartOpen(true);
+                  }}
                   className="btn-stylist-outline"
                   style={{ flex: 1, padding: '0.9rem 1.2rem', fontSize: '0.78rem' }}
                 >

@@ -397,7 +397,7 @@ export default function Home() {
                   <span style={{ fontSize: '0.78rem', color: '#888888', marginTop: '0.2rem', display: 'block' }}>Sur-Mesure Précis</span>
                 </div>
                 <div>
-                  <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '1.1rem', fontWeight: 700, color: '#FFFFFF' }}>VIP</span>
+                  <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '1.1rem', fontWeight: 700, color: '#FFFFFF' }}>Domicile</span>
                   <span style={{ fontSize: '0.78rem', color: '#888888', marginTop: '0.2rem', display: 'block' }}>Déplacement Chez Vous</span>
                 </div>
                 <div>

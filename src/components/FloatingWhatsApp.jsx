@@ -11,29 +11,29 @@ export default function FloatingWhatsApp() {
       id: 'rdv',
       icon: <Scissors size={15} />,
       title: 'Prise de RDV Sur-Mesure',
-      desc: 'Déplacement VIP à domicile ou consultation à l’Atelier',
-      prefill: 'Bonjour, je souhaite bloquer une consultation et prise de mesure sur-mesure.'
+      desc: 'Déplacement chez vous ou à l’Atelier',
+      prefill: 'Bonjour, je souhaite convenir d’un rendez-vous pour une tenue sur-mesure.'
     },
     {
       id: 'shop',
       icon: <ShoppingBag size={15} />,
       title: 'Question Prêt-à-Porter',
-      desc: 'Disponibilité des tailles, matières & délais de livraison',
-      prefill: 'Bonjour, j’ai une question concernant vos pièces de prêt-à-porter.'
+      desc: 'Disponibilité des tailles et livraison',
+      prefill: 'Bonjour, j’ai une question concernant un vêtement de la boutique.'
     },
     {
       id: 'flocage',
       icon: <Sparkles size={15} />,
-      title: 'Studio de Flocage',
-      desc: 'Personnalisation textile, broderie & séries limitées',
-      prefill: 'Bonjour, je souhaite un devis pour la personnalisation / flocage de vêtements.'
+      title: 'Flocage & Personnalisation',
+      desc: 'Personnalisation de vos vêtements',
+      prefill: 'Bonjour, je souhaite un devis pour la personnalisation ou le flocage de vêtements.'
     },
     {
       id: 'conseil',
       icon: <HelpCircle size={15} />,
-      title: 'Conseil Styliste Direct',
-      desc: 'Échanger directement avec le créateur',
-      prefill: 'Bonjour, je souhaite un conseil personnalisé pour un projet vestimentaire.'
+      title: 'Conseil du Styliste',
+      desc: 'Échange direct avec le créateur',
+      prefill: 'Bonjour, je souhaite un conseil stylistique pour mon projet vestimentaire.'
     }
   ];
 

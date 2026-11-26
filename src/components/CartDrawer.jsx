@@ -278,33 +278,25 @@ export default function CartDrawer() {
                 onChange={(e) => setCustomerName(e.target.value)}
                 className="input-stylist"
                 required
-                style={{ padding: '0.75rem', fontSize: '0.85rem' }}
+                style={{ padding: '0.8rem', fontSize: '0.85rem' }}
               />
               <input
                 type="tel"
-                placeholder="Numéro WhatsApp (ex: +229...) *"
+                placeholder="Numéro WhatsApp *"
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
                 className="input-stylist"
                 required
-                style={{ padding: '0.75rem', fontSize: '0.85rem' }}
+                style={{ padding: '0.8rem', fontSize: '0.85rem' }}
               />
               <input
                 type="text"
-                placeholder="Adresse de livraison / Retrait atelier *"
+                placeholder="Quartier ou Ville de livraison à Cotonou *"
                 value={customerAddress}
                 onChange={(e) => setCustomerAddress(e.target.value)}
                 className="input-stylist"
                 required
-                style={{ padding: '0.75rem', fontSize: '0.85rem' }}
-              />
-              <input
-                type="text"
-                placeholder="Précisions de commande (Optionnel)"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="input-stylist"
-                style={{ padding: '0.75rem', fontSize: '0.85rem' }}
+                style={{ padding: '0.8rem', fontSize: '0.85rem' }}
               />
 
               <button
@@ -312,7 +304,7 @@ export default function CartDrawer() {
                 className="btn-stylist-dark"
                 style={{
                   width: '100%',
-                  marginTop: '0.5rem',
+                  marginTop: '0.4rem',
                   padding: '1rem'
                 }}
               >
