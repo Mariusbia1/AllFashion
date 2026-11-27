@@ -54,14 +54,14 @@ export default function Home() {
         overflow: 'hidden',
         color: '#FFFFFF'
       }}>
-        {/* IMAGE BACKGROUND : MATÉRIELS DE COUTURE & ATELIER (CISEAUX TAILLEUR, MÈTRE RUBAN, TISSUS) SANS PERSONNE */}
+        {/* IMAGE BACKGROUND : MATÉRIELS DE COUTURE MODERNES & HAUTE COUTURE (CISEAUX, MÈTRE RUBAN, SOIE & FIL) SANS PERSONNE */}
         <div style={{
           position: 'absolute',
           inset: '-20px',
           backgroundImage: `url('/images/hero-tailor-tools.jpg')`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center 42%',
-          filter: 'blur(2px) brightness(0.68)',
+          backgroundPosition: 'center 40%',
+          filter: 'blur(1px) brightness(0.62)',
           transform: 'scale(1.04)',
           zIndex: 1
         }} />
@@ -70,7 +70,7 @@ export default function Home() {
         <div style={{
           position: 'absolute',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.46)',
+          backgroundColor: 'rgba(0, 0, 0, 0.42)',
           zIndex: 2
         }} />
 
