@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Scissors, Sparkles, ShieldCheck, Clock, Star, MessageCircle } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { PRODUCTS, CATEGORIES, LOOKBOOK_ITEMS, TESTIMONIALS, STYLIST_WHATSAPP_NUMBER } from '../data/products';
+import { PRODUCTS, CATEGORIES, TESTIMONIALS, STYLIST_WHATSAPP_NUMBER } from '../data/products';
 
 const REALISATIONS = [
   {
@@ -32,11 +32,8 @@ const REALISATIONS = [
 ];
 
 export default function Home() {
-  const [activeLookIndex, setActiveLookIndex] = useState(0);
-
   // 4 catégories sur une ligne
   const mainCategories = CATEGORIES.slice(1, 5);
-  const currentLook = LOOKBOOK_ITEMS[activeLookIndex] || LOOKBOOK_ITEMS[0];
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', color: '#000000', overflowX: 'hidden' }}>
@@ -566,123 +563,7 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
-          6. EDITORIAL LOOKBOOK ANIMÉ VIA AOS (MOTS SIMPLES & STYLE ÉPURÉ)
-          ========================================================================= */}
-      <section style={{ padding: 'clamp(3.5rem, 5vw, 5rem) 0', backgroundColor: '#F8F8F8', borderBottom: '1px solid #E5E5E5' }}>
-        <div className="editorial-container">
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
-            gap: 'clamp(2.5rem, 5vw, 4.5rem)',
-            alignItems: 'center'
-          }}>
-            <div
-              data-aos="fade-right"
-              style={{
-                position: 'relative',
-                aspectRatio: '3/4',
-                maxHeight: '620px',
-                width: '100%',
-                backgroundColor: '#EFEFEF',
-                border: 'none',
-                overflow: 'hidden'
-              }}
-            >
-              <img
-                src={currentLook.image}
-                alt={currentLook.title}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  filter: 'none',
-                  opacity: 1
-                }}
-              />
-
-              {currentLook.dots && currentLook.dots.map((dot) => (
-                <div
-                  key={dot.id}
-                  className="lookbook-hotspot"
-                  style={{ top: `${dot.y}%`, left: `${dot.x}%` }}
-                  title={`${dot.title} — ${dot.price}`}
-                />
-              ))}
-            </div>
-
-            <div data-aos="fade-left">
-              <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.5rem' }}>
-                NOS STYLES & INSPIRATIONS
-              </span>
-
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 3.8vw, 2.6rem)', lineHeight: 1.1, marginBottom: '0.8rem' }}>
-                Le Lookbook AllFashion
-              </h2>
-
-              <p style={{ color: '#555555', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.8rem' }}>
-                Découvrez nos tenues portées au quotidien. Des vêtements bien coupés, confortables et adaptés à votre style.
-              </p>
-
-              <div style={{ borderTop: '1px solid #CCCCCC', marginBottom: '1.8rem' }}>
-                {currentLook.dots && currentLook.dots.map((item, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '0.9rem 0',
-                      borderBottom: '1px solid #E5E5E5'
-                    }}
-                  >
-                    <div>
-                      <span style={{ fontSize: '0.92rem', fontWeight: 600 }}>{item.title}</span>
-                      <span style={{ display: 'block', fontSize: '0.72rem', color: '#888888', fontFamily: 'var(--font-mono)' }}>
-                        Fait main sur-mesure
-                      </span>
-                    </div>
-
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.92rem', fontWeight: 700 }}>
-                      {item.price}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.8rem' }}>
-                {LOOKBOOK_ITEMS.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setActiveLookIndex(i)}
-                    style={{
-                      width: '38px',
-                      height: '38px',
-                      border: activeLookIndex === i ? '2px solid #000000' : '1px solid #CCCCCC',
-                      backgroundColor: activeLookIndex === i ? '#000000' : '#FFFFFF',
-                      color: activeLookIndex === i ? '#FFFFFF' : '#000000',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    0{i + 1}
-                  </button>
-                ))}
-              </div>
-
-              <Link to="/lookbook" className="btn-stylist-dark">
-                VOIR TOUS LES LOOKS
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================================
-          7. VALEURS & ENGAGEMENTS DE L'ATELIER (4 Colonnes animées avec AOS)
+          6. VALEURS & ENGAGEMENTS DE L'ATELIER (4 Colonnes animées avec AOS)
           ========================================================================= */}
       <section style={{ padding: 'clamp(3rem, 5vw, 4.5rem) 0', backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container">
