@@ -374,9 +374,9 @@ export default function AdminDashboard() {
             {[
               { id: 'dashboard', label: 'Vue d’ensemble', icon: <LayoutDashboard size={17} /> },
               { id: 'analytics', label: 'Statistiques & Visites', icon: <BarChart3 size={17} /> },
-              { id: 'orders', label: `Commandes (${totalAllOrders})`, icon: <Package size={17} />, badge: pendingOrdersCount },
-              { id: 'categories', label: `Catégories (${categories.length})`, icon: <Layers size={17} /> },
-              { id: 'products', label: `Vêtements (${products.length})`, icon: <ShoppingBag size={17} /> },
+              { id: 'orders', label: 'Commandes', icon: <Package size={17} />, badge: pendingOrdersCount },
+              { id: 'categories', label: 'Catégories', icon: <Layers size={17} /> },
+              { id: 'products', label: 'Vêtements', icon: <ShoppingBag size={17} /> },
               { id: 'realisations', label: 'Galerie Lookbook', icon: <ImageIcon size={17} /> }
             ].map((tab) => (
               <button
