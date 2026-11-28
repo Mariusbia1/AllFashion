@@ -28,6 +28,7 @@ Route::prefix('v1')->group(function () {
     // Routes Back-Office / Admin
     Route::prefix('admin')->group(function () {
         Route::get('/stats', [AdminController::class, 'stats']);
+        Route::get('/analytics', [AdminController::class, 'analytics']);
 
         // Catégories (Création, modification, suppression)
         Route::get('/categories', [AdminController::class, 'categories']);

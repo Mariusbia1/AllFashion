@@ -8,7 +8,7 @@ import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import { CartProvider } from './context/CartContext';
-import { StoreProvider } from './context/StoreContext';
+import { StoreProvider, useStore } from './context/StoreContext';
 
 import Home from './pages/Home';
 import Shop from './pages/Shop';
@@ -24,11 +24,17 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 
 function ScrollHandler() {
   const { pathname } = useLocation();
+  const { recordVisit } = useStore();
 
   useEffect(() => {
     window.scrollTo(0, 0);
     // Rafraîchir AOS lors de chaque changement de page
     AOS.refresh();
+
+    // Enregistrement de la visite pour les statistiques si public
+    if (!pathname.startsWith('/admin')) {
+      recordVisit(pathname);
+    }
   }, [pathname]);
 
   return null;

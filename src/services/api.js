@@ -70,6 +70,7 @@ export const api = {
   // 9. Back-Office Admin
   admin: {
     getStats: () => request('/admin/stats'),
+    getAnalytics: () => request('/admin/analytics'),
     getOrders: () => request('/admin/orders'),
     updateOrderStatus: (id, status) => request(`/admin/orders/${id}/status`, {
       method: 'PUT',

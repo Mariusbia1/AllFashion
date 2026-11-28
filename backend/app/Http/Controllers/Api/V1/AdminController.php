@@ -32,6 +32,46 @@ class AdminController extends Controller
         ]);
     }
 
+    public function analytics(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_visits' => 3842,
+                'unique_visitors' => 2154,
+                'page_views' => 9680,
+                'conversion_rate' => '4.8%',
+                'daily_visits' => [
+                    ['day' => 'Lun', 'date' => '24 Nov', 'visits' => 385, 'views' => 920],
+                    ['day' => 'Mar', 'date' => '25 Nov', 'visits' => 440, 'views' => 1060],
+                    ['day' => 'Mer', 'date' => '26 Nov', 'visits' => 510, 'views' => 1280],
+                    ['day' => 'Jeu', 'date' => '27 Nov', 'visits' => 490, 'views' => 1190],
+                    ['day' => 'Ven', 'date' => '28 Nov', 'visits' => 615, 'views' => 1580],
+                    ['day' => 'Sam', 'date' => '29 Nov', 'visits' => 780, 'views' => 1950],
+                    ['day' => 'Dim', 'date' => '30 Nov', 'visits' => 622, 'views' => 1700],
+                ],
+                'top_pages' => [
+                    ['path' => '/', 'name' => 'Accueil & Univers Atelier', 'views' => 3420, 'percent' => 35],
+                    ['path' => '/boutique', 'name' => 'Boutique Prêt-à-Porter', 'views' => 2850, 'percent' => 29],
+                    ['path' => '/sur-mesure', 'name' => 'Confection Sur-Mesure', 'views' => 1480, 'percent' => 15],
+                    ['path' => '/flocage', 'name' => 'Flocage & Personnalisation', 'views' => 1120, 'percent' => 12],
+                    ['path' => '/lookbook', 'name' => 'Galerie Lookbook', 'views' => 810, 'percent' => 9],
+                ],
+                'devices' => [
+                    ['type' => 'Smartphones (Mobile)', 'percent' => 79, 'count' => 3035],
+                    ['type' => 'Ordinateurs (Desktop)', 'percent' => 18, 'count' => 691],
+                    ['type' => 'Tablettes', 'percent' => 3, 'count' => 116],
+                ],
+                'sources' => [
+                    ['source' => 'WhatsApp Direct & Statuts', 'percent' => 46, 'visits' => 1767],
+                    ['source' => 'Instagram & Réseaux Sociaux', 'percent' => 32, 'visits' => 1229],
+                    ['source' => 'Accès Direct & Bouche-à-oreille', 'percent' => 15, 'visits' => 576],
+                    ['source' => 'Recherche Google / Moteurs', 'percent' => 7, 'visits' => 270],
+                ],
+            ]
+        ]);
+    }
+
     public function categories(): JsonResponse
     {
         $categories = Category::withCount('products')->orderBy('sort_order', 'asc')->get();
