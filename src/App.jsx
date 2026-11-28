@@ -8,6 +8,7 @@ import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import { CartProvider } from './context/CartContext';
+import { StoreProvider } from './context/StoreContext';
 
 import Home from './pages/Home';
 import Shop from './pages/Shop';
@@ -17,6 +18,9 @@ import Flocking from './pages/Flocking';
 import Lookbook from './pages/Lookbook';
 import Atelier from './pages/Atelier';
 import Contact from './pages/Contact';
+
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 function ScrollHandler() {
   const { pathname } = useLocation();
@@ -77,10 +81,19 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <CartProvider>
-        <ScrollHandler />
-        <MainLayout />
-      </CartProvider>
+      <StoreProvider>
+        <CartProvider>
+          <ScrollHandler />
+          <Routes>
+            {/* Espace Administration complet (Plein écran sans Navbar/Footer publics) */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/*" element={<AdminDashboard />} />
+
+            {/* Site Public */}
+            <Route path="/*" element={<MainLayout />} />
+          </Routes>
+        </CartProvider>
+      </StoreProvider>
     </BrowserRouter>
   );
 }

@@ -2,9 +2,10 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { PRODUCTS, CATEGORIES } from '../data/products';
+import { useStore } from '../context/StoreContext';
 
 export default function Shop() {
+  const { products, categories } = useStore();
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get('category');
   const [selectedCat, setSelectedCat] = useState(categoryParam || 'ALL');
@@ -22,7 +23,7 @@ export default function Shop() {
   const availableSizes = ['ALL', 'S', 'M', 'L', 'XL', 'Sur-Mesure'];
 
   const filtered = useMemo(() => {
-    let list = PRODUCTS.filter((p) => {
+    let list = (products || []).filter((p) => {
       if (selectedCat !== 'ALL' && p.category !== selectedCat) return false;
       if (selectedSize !== 'ALL' && (!p.sizes || !p.sizes.includes(selectedSize))) return false;
       if (search.trim()) {
@@ -233,7 +234,7 @@ export default function Shop() {
               </span>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                {CATEGORIES.map((cat) => {
+                {(categories || []).map((cat) => {
                   const isSelected = selectedCat === cat.id;
                   return (
                     <button
@@ -336,7 +337,7 @@ export default function Shop() {
 
               {selectedCat !== 'ALL' && (
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#000000', fontWeight: 600 }}>
-                  Catégorie : {CATEGORIES.find((c) => c.id === selectedCat)?.name}
+                  Catégorie : {(categories || []).find((c) => c.id === selectedCat)?.name}
                 </span>
               )}
             </div>

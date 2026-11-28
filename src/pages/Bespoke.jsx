@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { MapPin, Calendar, Clock, Scissors, ShieldCheck, Send, Check } from 'lucide-react';
 import { STYLIST_WHATSAPP_NUMBER } from '../data/products';
+import { useStore } from '../context/StoreContext';
 
 export default function Bespoke() {
+  const { addAppointment } = useStore();
   const [locationType, setLocationType] = useState('domicile');
   const [address, setAddress] = useState('');
   const [dateSlot, setDateSlot] = useState('');
@@ -21,6 +23,16 @@ export default function Bespoke() {
       alert('Veuillez préciser votre quartier ou adresse pour le déplacement.');
       return;
     }
+
+    // Enregistrement dans le Store / Base de données Admin
+    addAppointment({
+      clientName,
+      clientPhone,
+      locationType,
+      address,
+      dateSlot,
+      garmentIdea
+    });
 
     // Référence provisoire RDV
     const ref = `RDV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;

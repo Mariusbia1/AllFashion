@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Scissors, Sparkles, ShieldCheck, Clock, Star, MessageCircle } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { PRODUCTS, CATEGORIES, TESTIMONIALS, STYLIST_WHATSAPP_NUMBER } from '../data/products';
+import { CATEGORIES, TESTIMONIALS, STYLIST_WHATSAPP_NUMBER } from '../data/products';
+import { useStore } from '../context/StoreContext';
 
 const REALISATIONS = [
   {
@@ -32,8 +33,10 @@ const REALISATIONS = [
 ];
 
 export default function Home() {
+  const { products, categories, realisations } = useStore();
   // 4 catégories sur une ligne
-  const mainCategories = CATEGORIES.slice(1, 5);
+  const mainCategories = (categories && categories.length > 1 ? categories.slice(1, 5) : CATEGORIES.slice(1, 5));
+  const displayRealisations = realisations && realisations.length > 0 ? realisations : REALISATIONS;
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', color: '#000000', overflowX: 'hidden' }}>
@@ -297,7 +300,7 @@ export default function Home() {
           </div>
 
           <div className="home-products-grid-3">
-            {PRODUCTS.slice(0, 3).map((product, idx) => (
+            {(products && products.length > 0 ? products.slice(0, 3) : []).map((product, idx) => (
               <div
                 key={product.id}
                 data-aos="fade-up"
@@ -458,7 +461,7 @@ export default function Home() {
           </div>
 
           <div className="home-realisations-grid">
-            {REALISATIONS.map((item, idx) => (
+            {displayRealisations.map((item, idx) => (
               <div
                 key={item.id}
                 data-aos="fade-up"

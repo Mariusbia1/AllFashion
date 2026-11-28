@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Trash2, Plus, Minus, Send, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useStore } from '../context/StoreContext';
 
 export default function CartDrawer() {
   const {
@@ -12,6 +13,7 @@ export default function CartDrawer() {
     setIsCartOpen,
     checkoutWhatsApp
   } = useCart();
+  const { addOrder } = useStore();
 
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -26,6 +28,16 @@ export default function CartDrawer() {
       alert('Veuillez renseigner votre nom, numéro WhatsApp et votre adresse de livraison.');
       return;
     }
+    // Enregistrement dans le Store / Base de données Admin
+    addOrder({
+      customerName,
+      whatsappNumber: customerPhone,
+      deliveryAddress: customerAddress,
+      items: items.map((i) => ({ name: i.name, size: i.size, price: i.price, quantity: i.quantity })),
+      totalAmount,
+      notes
+    });
+
     checkoutWhatsApp({
       customerName,
       customerPhone,

@@ -3,14 +3,17 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Send, ShieldCheck, Check, Truck } from 'lucide-react';
 import { PRODUCTS, STYLIST_WHATSAPP_NUMBER } from '../data/products';
 import { useCart } from '../context/CartContext';
+import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
 
 export default function ProductDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addItem, setIsCartOpen } = useCart();
+  const { products } = useStore();
 
-  const product = PRODUCTS.find((p) => p.slug === slug) || PRODUCTS[0];
+  const allAvailable = products && products.length > 0 ? products : PRODUCTS;
+  const product = allAvailable.find((p) => p.slug === slug) || allAvailable[0];
   const [selectedImage, setSelectedImage] = useState(product.images ? product.images[0] : '/assets/img/creation-1.jpg');
   const [selectedSize, setSelectedSize] = useState(product.sizes ? product.sizes[0] : 'Sur-Mesure');
   const [quantity, setQuantity] = useState(1);
@@ -30,7 +33,7 @@ export default function ProductDetail() {
     window.open(`https://wa.me/${STYLIST_WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  const similarProducts = PRODUCTS.filter((p) => p.id !== product.id).slice(0, 3);
+  const similarProducts = allAvailable.filter((p) => p.id !== product.id).slice(0, 3);
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', paddingBottom: '7rem' }}>
