@@ -7,7 +7,6 @@ import {
   Calendar,
   Layers,
   Image as ImageIcon,
-  Database,
   LogOut,
   Plus,
   Trash2,
@@ -368,8 +367,7 @@ export default function AdminDashboard() {
               { id: 'orders', label: `Commandes (${totalAllOrders})`, icon: <Package size={17} />, badge: pendingOrdersCount },
               { id: 'categories', label: `Catégories (${categories.length})`, icon: <Layers size={17} /> },
               { id: 'products', label: `Vêtements (${products.length})`, icon: <ShoppingBag size={17} /> },
-              { id: 'realisations', label: 'Galerie Lookbook', icon: <ImageIcon size={17} /> },
-              { id: 'database', label: 'Base de données', icon: <Database size={17} /> }
+              { id: 'realisations', label: 'Galerie Lookbook', icon: <ImageIcon size={17} /> }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -475,7 +473,6 @@ export default function AdminDashboard() {
               {activeTab === 'categories' && 'Gestion des Catégories'}
               {activeTab === 'products' && 'Catalogue de Prêt-à-Porter'}
               {activeTab === 'realisations' && 'Galerie & Portfolio'}
-              {activeTab === 'database' && 'Base de Données & TablePlus'}
             </h1>
           </div>
 
@@ -1028,47 +1025,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* =========================================================================
-            TAB 6 : BASE DE DONNÉES & TABLEPLUS
-            ========================================================================= */}
-        {activeTab === 'database' && (
-          <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '2rem' }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '0.5rem' }}>
-              Connexion TablePlus & Base de Données
-            </h3>
-            <p style={{ color: '#666666', fontSize: '0.85rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-              Le backend fonctionne avec votre base de données MySQL locale (DBngin / Herd) et synchronise toutes les données.
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-              <div style={{ padding: '1.2rem', backgroundColor: '#F8F9FA', border: '1px solid #E9ECEF' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>
-                  Configuration MySQL TablePlus
-                </span>
-                <ul style={{ fontSize: '0.8rem', color: '#495057', listStyle: 'none', padding: 0, margin: 0, lineHeight: 1.8 }}>
-                  <li><strong>Host :</strong> 127.0.0.1</li>
-                  <li><strong>Port :</strong> 3306</li>
-                  <li><strong>Utilisateur :</strong> root</li>
-                  <li><strong>Mot de passe :</strong> (vide)</li>
-                  <li><strong>Base de données :</strong> allfashion</li>
-                </ul>
-              </div>
-
-              <div style={{ padding: '1.2rem', backgroundColor: '#F8F9FA', border: '1px solid #E9ECEF' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>
-                  Fichier SQLite direct
-                </span>
-                <p style={{ fontSize: '0.8rem', color: '#495057', lineHeight: 1.5 }}>
-                  Vous pouvez aussi ouvrir directement le fichier SQLite dans TablePlus en lançant dans le terminal :
-                </p>
-                <code style={{ display: 'block', padding: '0.5rem', backgroundColor: '#000000', color: '#FFFFFF', fontSize: '0.72rem', marginTop: '0.5rem' }}>
-                  open backend/database/database.sqlite -a TablePlus
-                </code>
-              </div>
             </div>
           </div>
         )}
