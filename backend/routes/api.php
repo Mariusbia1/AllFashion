@@ -28,13 +28,30 @@ Route::prefix('v1')->group(function () {
     // Routes Back-Office / Admin
     Route::prefix('admin')->group(function () {
         Route::get('/stats', [AdminController::class, 'stats']);
-        Route::get('/orders', [AdminController::class, 'orders']);
-        Route::put('/orders/{id}/status', [AdminController::class, 'updateOrderStatus']);
-        Route::get('/appointments', [AdminController::class, 'appointments']);
-        Route::put('/appointments/{id}/status', [AdminController::class, 'updateAppointmentStatus']);
+
+        // Catégories (Création, modification, suppression)
+        Route::get('/categories', [AdminController::class, 'categories']);
+        Route::post('/categories', [AdminController::class, 'storeCategory']);
+        Route::put('/categories/{id}', [AdminController::class, 'updateCategory']);
+        Route::delete('/categories/{id}', [AdminController::class, 'deleteCategory']);
+
+        // Produits (Création, modification, suppression)
         Route::get('/products', [AdminController::class, 'products']);
         Route::post('/products', [AdminController::class, 'storeProduct']);
         Route::put('/products/{id}', [AdminController::class, 'updateProduct']);
         Route::delete('/products/{id}', [AdminController::class, 'deleteProduct']);
+
+        // Commandes & Projets Prêt-à-Porter, Couture & Flocage
+        Route::get('/orders', [AdminController::class, 'orders']);
+        Route::post('/orders', [AdminController::class, 'storeManualOrder']);
+        Route::put('/orders/{id}/status', [AdminController::class, 'updateOrderStatus']);
+
+        // Rendez-vous Sur-mesure (Couture)
+        Route::get('/appointments', [AdminController::class, 'appointments']);
+        Route::put('/appointments/{id}/status', [AdminController::class, 'updateAppointmentStatus']);
+
+        // Demandes & Commandes de Flocage
+        Route::get('/flocking-requests', [AdminController::class, 'flockingRequests']);
+        Route::put('/flocking-requests/{id}/status', [AdminController::class, 'updateFlockingStatus']);
     });
 });

@@ -5,6 +5,7 @@ import {
   ShoppingBag,
   Package,
   Calendar,
+  Layers,
   Image as ImageIcon,
   Database,
   LogOut,
@@ -19,7 +20,10 @@ import {
   ExternalLink,
   Save,
   X,
-  Menu
+  Menu,
+  Scissors,
+  Sparkles,
+  Phone
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
@@ -29,23 +33,51 @@ export default function AdminDashboard() {
     categories,
     orders,
     appointments,
+    flockingRequests = [],
     realisations,
     isAdmin,
     logout,
+    addCategory,
+    deleteCategory,
     addProduct,
     updateProduct,
     deleteProduct,
     updateOrderStatus,
     updateAppointmentStatus,
+    updateFlockingStatus,
+    addManualOrder,
     addRealisation,
     deleteRealisation
   } = useStore();
 
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('orders'); // Onglet commandes par défaut
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Filtres / Recherche
+  // Filtre commandes
+  const [orderFilter, setOrderFilter] = useState('ALL'); // 'ALL' | 'couture' | 'flocage' | 'pret-a-porter'
+
+  // Modal Nouvelle Commande
+  const [isAddOrderModalOpen, setIsAddOrderModalOpen] = useState(false);
+  const [newOrder, setNewOrder] = useState({
+    type: 'couture', // 'couture', 'flocage', 'pret-a-porter'
+    customerName: '',
+    customerPhone: '',
+    deliveryAddress: '',
+    amount: '',
+    details: '',
+    status: 'en_attente'
+  });
+
+  // Modal Nouvelle Catégorie
+  const [isAddCatModalOpen, setIsAddCatModalOpen] = useState(false);
+  const [newCat, setNewCat] = useState({
+    name: '',
+    type: 'shop',
+    sort_order: 0
+  });
+
+  // Filtres / Recherche Produits
   const [prodSearch, setProdSearch] = useState('');
   const [prodCategory, setProdCategory] = useState('ALL');
 
@@ -53,7 +85,7 @@ export default function AdminDashboard() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newProd, setNewProd] = useState({
     name: '',
-    category: 'HOMME',
+    category: categories[0]?.slug || 'HOMME',
     price: '',
     image: '/images/look-imprime-2.jpg',
     description: '',
@@ -73,18 +105,26 @@ export default function AdminDashboard() {
   }
 
   // Calculs statistiques
-  const totalRevenue = orders
-    .filter((o) => o.status === 'confirmee' || o.status === 'livree')
-    .reduce((acc, o) => acc + (o.totalAmount || 0), 0);
+  const totalRevenue =
+    orders
+      .filter((o) => o.status === 'confirmee' || o.status === 'livree')
+      .reduce((acc, o) => acc + (o.totalAmount || 0), 0) +
+    flockingRequests
+      .filter((f) => f.status === 'en_production' || f.status === 'terminee')
+      .reduce((acc, f) => acc + (f.quotedPrice || 0), 0);
 
-  const pendingOrders = orders.filter((o) => o.status === 'en_attente').length;
-  const pendingAppointments = appointments.filter((a) => a.status === 'a_confirmer').length;
-  const outOfStockProducts = products.filter((p) => p.inStock === false).length;
+  const pendingOrdersCount =
+    orders.filter((o) => o.status === 'en_attente').length +
+    appointments.filter((a) => a.status === 'en_attente' || a.status === 'a_confirmer').length +
+    flockingRequests.filter((f) => f.status === 'nouvelle').length;
 
+  const totalAllOrders = orders.length + appointments.length + flockingRequests.length;
+
+  // Soumission Ajout Produit
   const handleAddProductSubmit = (e) => {
     e.preventDefault();
     if (!newProd.name || !newProd.price) {
-      alert('Veuillez renseigner au moins le nom et le prix du vêtement.');
+      alert('Veuillez renseigner le nom et le prix du vêtement.');
       return;
     }
 
@@ -93,19 +133,23 @@ export default function AdminDashboard() {
     addProduct({
       name: newProd.name,
       category: newProd.category,
+      categoryLabel: categories.find((c) => c.slug === newProd.category)?.name || newProd.category,
       price: Number(newProd.price),
+      priceFormatted: `${Number(newProd.price).toLocaleString('fr-FR')} FCFA`,
       image: newProd.image || '/images/look-imprime-2.jpg',
+      images: [newProd.image || '/images/look-imprime-2.jpg'],
+      sizes: sizesArr.length > 0 ? sizesArr : ['S', 'M', 'L', 'XL'],
       description: newProd.description,
-      sizes: sizesArr.length ? sizesArr : ['Sur-Mesure', 'M', 'L'],
       inStock: newProd.inStock,
       isNew: newProd.isNew,
-      isBestSeller: newProd.isBestSeller
+      isBestSeller: newProd.isBestSeller,
+      rating: 5
     });
 
     setIsAddModalOpen(false);
     setNewProd({
       name: '',
-      category: 'HOMME',
+      category: categories[0]?.slug || 'HOMME',
       price: '',
       image: '/images/look-imprime-2.jpg',
       description: '',
@@ -116,31 +160,181 @@ export default function AdminDashboard() {
     });
   };
 
+  // Soumission Édition Produit
   const handleUpdateProductSubmit = (e) => {
     e.preventDefault();
     if (!editingProd) return;
+
     updateProduct(editingProd.id, {
       name: editingProd.name,
       category: editingProd.category,
+      categoryLabel: categories.find((c) => c.slug === editingProd.category)?.name || editingProd.category,
       price: Number(editingProd.price),
-      inStock: editingProd.inStock,
-      description: editingProd.description
+      priceFormatted: `${Number(editingProd.price).toLocaleString('fr-FR')} FCFA`,
+      description: editingProd.description,
+      inStock: editingProd.inStock
     });
+
     setEditingProd(null);
   };
 
+  // Soumission Ajout Catégorie
+  const handleAddCategorySubmit = (e) => {
+    e.preventDefault();
+    if (!newCat.name.trim()) {
+      alert('Veuillez renseigner un nom de catégorie.');
+      return;
+    }
+
+    addCategory({
+      name: newCat.name.trim(),
+      type: newCat.type,
+      sort_order: Number(newCat.sort_order) || 0
+    });
+
+    setIsAddCatModalOpen(false);
+    setNewCat({ name: '', type: 'shop', sort_order: 0 });
+  };
+
+  // Soumission Ajout Commande Manuelle
+  const handleAddOrderSubmit = async (e) => {
+    e.preventDefault();
+    if (!newOrder.customerName || !newOrder.customerPhone) {
+      alert('Veuillez renseigner le nom et le numéro du client.');
+      return;
+    }
+
+    await addManualOrder(newOrder);
+
+    setIsAddOrderModalOpen(false);
+    setNewOrder({
+      type: 'couture',
+      customerName: '',
+      customerPhone: '',
+      deliveryAddress: '',
+      amount: '',
+      details: '',
+      status: 'en_attente'
+    });
+  };
+
+  // Filtrage des vêtements du catalogue
   const filteredProducts = products.filter((p) => {
     if (prodCategory !== 'ALL' && p.category !== prodCategory) return false;
     if (prodSearch.trim()) {
-      return p.name.toLowerCase().includes(prodSearch.toLowerCase());
+      const q = prodSearch.toLowerCase();
+      return p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q));
     }
     return true;
   });
 
+  // Construction de la liste unifiée et concrète des commandes & projets
+  const unifiedOrdersList = [
+    ...orders.map((o) => ({
+      ...o,
+      orderType: 'pret-a-porter',
+      typeBadge: '🛍️ PRÊT-À-PORTER',
+      badgeColor: '#166534',
+      badgeBg: '#DCFCE7',
+      client: o.customerName,
+      phone: o.whatsappNumber,
+      date: o.createdAt,
+      concreteDetails: (
+        <div>
+          <span style={{ fontWeight: 600, display: 'block', marginBottom: '0.2rem' }}>Articles commandés :</span>
+          {o.items && o.items.map((it, idx) => (
+            <div key={idx} style={{ fontSize: '0.74rem', color: '#333333' }}>
+              • {it.quantity}x {it.name} (Taille : {it.size}) — {Number(it.price * it.quantity).toLocaleString('fr-FR')} FCFA
+            </div>
+          ))}
+          {o.deliveryAddress && (
+            <div style={{ fontSize: '0.72rem', color: '#666666', marginTop: '0.3rem' }}>
+              📍 <em>Livraison :</em> {o.deliveryAddress}
+            </div>
+          )}
+        </div>
+      ),
+      amount: o.totalAmount || 0,
+      whatsappMsg: `Bonjour ${o.customerName}, nous faisons le point sur votre commande AllFashion (${o.id}). Pouvons-nous confirmer la livraison ?`,
+      onStatusChange: (newStatus) => updateOrderStatus(o.id, newStatus)
+    })),
+
+    ...appointments.map((a) => ({
+      ...a,
+      orderType: 'couture',
+      typeBadge: '✂️ COUTURE SUR-MESURE',
+      badgeColor: '#000000',
+      badgeBg: '#F3F4F6',
+      client: a.clientName || a.customerName,
+      phone: a.clientPhone || a.whatsappNumber,
+      date: a.createdAt,
+      concreteDetails: (
+        <div>
+          <span style={{ fontWeight: 600, display: 'block', marginBottom: '0.2rem' }}>
+            {a.garmentIdea || a.garment_type || 'Tenue Sur-Mesure'}
+          </span>
+          <div style={{ fontSize: '0.74rem', color: '#444444' }}>
+            📍 <strong>Lieu :</strong> {a.locationType === 'domicile' ? 'Déplacement chez le client' : "À l'Atelier AllFashion"}
+          </div>
+          {a.address && (
+            <div style={{ fontSize: '0.72rem', color: '#666666' }}>
+              Adresse : {a.address}
+            </div>
+          )}
+          {a.dateSlot && (
+            <div style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600, marginTop: '0.2rem' }}>
+              📅 Date souhaitée : {a.dateSlot}
+            </div>
+          )}
+        </div>
+      ),
+      amount: a.amount || 0,
+      whatsappMsg: `Bonjour ${a.clientName || a.customerName}, suite à votre demande de rendez-vous sur-mesure (${a.id}), le styliste AllFashion souhaite convenir du créneau pour la prise de mesure.`,
+      onStatusChange: (newStatus) => updateAppointmentStatus(a.id, newStatus)
+    })),
+
+    ...flockingRequests.map((f) => ({
+      ...f,
+      orderType: 'flocage',
+      typeBadge: '🎨 FLOCAGE & MARQUAGE',
+      badgeColor: '#1E40AF',
+      badgeBg: '#DBEAFE',
+      client: f.clientName,
+      phone: f.clientPhone,
+      date: f.createdAt,
+      concreteDetails: (
+        <div>
+          <span style={{ fontWeight: 600, display: 'block', marginBottom: '0.2rem' }}>
+            {f.garmentType} ({f.quantity} pièces)
+          </span>
+          <div style={{ fontSize: '0.74rem', color: '#444444' }}>
+            🎯 <strong>Emplacement :</strong> {f.position}
+          </div>
+          {f.instructions && (
+            <div style={{ fontSize: '0.72rem', color: '#555555', marginTop: '0.2rem', fontStyle: 'italic' }}>
+              "{f.instructions}"
+            </div>
+          )}
+        </div>
+      ),
+      amount: f.quotedPrice || 0,
+      whatsappMsg: `Bonjour ${f.clientName}, suite à votre projet de flocage (${f.id}), nous avons étudié votre demande et souhaitons valider le visuel et le devis avec vous.`,
+      onStatusChange: (newStatus) => updateFlockingStatus(f.id, newStatus)
+    }))
+  ].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+  // Filtrage selon le bouton sélectionné
+  const displayedOrders = unifiedOrdersList.filter((item) => {
+    if (orderFilter === 'ALL') return true;
+    return item.orderType === orderFilter;
+  });
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F4F4F4', color: '#000000', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F9F9F9', color: '#000000', display: 'flex' }}>
       
-      {/* SIDEBAR NAVIGATION ADMIN */}
+      {/* =========================================================================
+          BARRE LATÉRALE (SIDEBAR ADMIN)
+          ========================================================================= */}
       <aside style={{
         width: '260px',
         backgroundColor: '#000000',
@@ -163,18 +357,18 @@ export default function AdminDashboard() {
               AllFashion
             </span>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.2em', color: '#888888', textTransform: 'uppercase', display: 'block', marginTop: '4px' }}>
-              ADMINISTRATION
+              ADMINISTRATION ATELIER
             </span>
           </div>
 
           {/* Liens de menu */}
           <nav style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
             {[
-              { id: 'dashboard', label: 'Tableau de bord', icon: <LayoutDashboard size={17} /> },
+              { id: 'dashboard', label: 'Vue d’ensemble', icon: <LayoutDashboard size={17} /> },
+              { id: 'orders', label: `Commandes (${totalAllOrders})`, icon: <Package size={17} />, badge: pendingOrdersCount },
+              { id: 'categories', label: `Catégories (${categories.length})`, icon: <Layers size={17} /> },
               { id: 'products', label: `Vêtements (${products.length})`, icon: <ShoppingBag size={17} /> },
-              { id: 'orders', label: `Commandes (${orders.length})`, icon: <Package size={17} />, badge: pendingOrders },
-              { id: 'appointments', label: `Rendez-vous (${appointments.length})`, icon: <Calendar size={17} />, badge: pendingAppointments },
-              { id: 'realisations', label: 'Galerie / Réalisations', icon: <ImageIcon size={17} /> },
+              { id: 'realisations', label: 'Galerie Lookbook', icon: <ImageIcon size={17} /> },
               { id: 'database', label: 'Base de données', icon: <Database size={17} /> }
             ].map((tab) => (
               <button
@@ -247,270 +441,465 @@ export default function AdminDashboard() {
             }}
             style={{
               backgroundColor: 'transparent',
-              color: '#FF6666',
-              border: '1px solid #331111',
-              padding: '0.65rem 0.8rem',
-              cursor: 'pointer',
+              border: 'none',
+              color: '#FF6B6B',
               fontSize: '0.75rem',
-              fontFamily: 'var(--font-mono)',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              justifyContent: 'center'
+              padding: '0.4rem 0.5rem',
+              cursor: 'pointer',
+              textAlign: 'left'
             }}
           >
             <LogOut size={14} />
             <span>Déconnexion</span>
           </button>
         </div>
-
       </aside>
 
-      {/* ZONE DE CONTENU PRINCIPALE */}
+      {/* =========================================================================
+          ZONE PRINCIPALE DE CONTENU
+          ========================================================================= */}
       <main style={{ flex: 1, padding: 'clamp(1.5rem, 3vw, 2.5rem)', overflowY: 'auto' }}>
         
-        {/* Top bar avec bouton d'ajout rapide */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '2rem',
-          flexWrap: 'wrap',
-          gap: '1rem'
-        }}>
+        {/* Header mobile & bienvenue */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.85rem', fontWeight: 600 }}>
-              {activeTab === 'dashboard' && 'Tableau de bord'}
-              {activeTab === 'products' && 'Gestion du Catalogue Vêtements'}
-              {activeTab === 'orders' && 'Gestion des Commandes'}
-              {activeTab === 'appointments' && 'Prises de Mesure Sur-Mesure'}
-              {activeTab === 'realisations' && 'Galerie & Réalisations Atelier'}
-              {activeTab === 'database' && 'Base de données TablePlus'}
-            </h1>
-            <span style={{ fontSize: '0.75rem', color: '#666666', fontFamily: 'var(--font-mono)' }}>
-              Maison AllFashion • Cotonou, Bénin
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888888', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+              Espace Styliste & Gestion
             </span>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', lineHeight: 1.1, marginTop: '0.2rem' }}>
+              {activeTab === 'dashboard' && 'Tableau de Bord Global'}
+              {activeTab === 'orders' && 'Commandes & Projets Atelier'}
+              {activeTab === 'categories' && 'Gestion des Catégories'}
+              {activeTab === 'products' && 'Catalogue de Prêt-à-Porter'}
+              {activeTab === 'realisations' && 'Galerie & Portfolio'}
+              {activeTab === 'database' && 'Base de Données & TablePlus'}
+            </h1>
           </div>
 
           <div style={{ display: 'flex', gap: '0.8rem' }}>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              style={{
-                backgroundColor: '#000000',
-                color: '#FFFFFF',
-                border: 'none',
-                padding: '0.7rem 1.2rem',
-                fontSize: '0.75rem',
-                fontFamily: 'var(--font-mono)',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              <Plus size={16} />
-              <span>AJOUTER UN VÊTEMENT</span>
-            </button>
+            {activeTab === 'orders' && (
+              <button
+                type="button"
+                onClick={() => setIsAddOrderModalOpen(true)}
+                className="btn-stylist-dark"
+                style={{ padding: '0.7rem 1.4rem', fontSize: '0.75rem' }}
+              >
+                <Plus size={15} />
+                <span>+ NOUVELLE COMMANDE ATELIER</span>
+              </button>
+            )}
+
+            {activeTab === 'categories' && (
+              <button
+                type="button"
+                onClick={() => setIsAddCatModalOpen(true)}
+                className="btn-stylist-dark"
+                style={{ padding: '0.7rem 1.4rem', fontSize: '0.75rem' }}
+              >
+                <Plus size={15} />
+                <span>+ NOUVELLE CATÉGORIE</span>
+              </button>
+            )}
+
+            {activeTab === 'products' && (
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(true)}
+                className="btn-stylist-dark"
+                style={{ padding: '0.7rem 1.4rem', fontSize: '0.75rem' }}
+              >
+                <Plus size={15} />
+                <span>+ AJOUTER UN VÊTEMENT</span>
+              </button>
+            )}
           </div>
         </div>
 
         {/* =========================================================================
-            TAB 1 : TABLEAU DE BORD (STATS ET ACTIVITÉ RÉCENTE)
+            TAB 1 : DASHBOARD (VUE D'ENSEMBLE & KPIS)
             ========================================================================= */}
         {activeTab === 'dashboard' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            
-            {/* 4 Cartes de statistiques clés */}
+          <div>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '1.2rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '1.2rem',
+              marginBottom: '2.5rem'
             }}>
               <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #000000', padding: '1.5rem' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#666666', textTransform: 'uppercase' }}>
-                  Chiffre d’Affaires Validé
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888888', textTransform: 'uppercase', display: 'block' }}>
+                  Chiffre d’Affaires Estimé
                 </span>
-                <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '1.7rem', fontWeight: 700, marginTop: '0.4rem' }}>
-                  {totalRevenue.toLocaleString('fr-FR')} FCFA
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.9rem', fontWeight: 800, display: 'block', marginTop: '0.4rem' }}>
+                  {totalRevenue.toLocaleString('fr-FR')} <span style={{ fontSize: '0.9rem' }}>FCFA</span>
                 </span>
-                <span style={{ fontSize: '0.72rem', color: '#888888', marginTop: '0.3rem', display: 'block' }}>
-                  Commandes confirmées ou livrées
+                <span style={{ fontSize: '0.72rem', color: '#166534', marginTop: '0.4rem', display: 'block' }}>
+                  Commandes confirmées & en confection
                 </span>
               </div>
 
-              <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #000000', padding: '1.5rem' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#666666', textTransform: 'uppercase' }}>
-                  Commandes en Attente
+              <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888888', textTransform: 'uppercase', display: 'block' }}>
+                  Commandes & Projets
                 </span>
-                <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '1.7rem', fontWeight: 700, marginTop: '0.4rem', color: pendingOrders > 0 ? '#D97706' : '#000000' }}>
-                  {pendingOrders}
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.9rem', fontWeight: 800, display: 'block', marginTop: '0.4rem' }}>
+                  {totalAllOrders}
                 </span>
-                <button
-                  onClick={() => setActiveTab('orders')}
-                  style={{ background: 'none', border: 'none', padding: 0, color: '#000000', textDecoration: 'underline', fontSize: '0.72rem', cursor: 'pointer', marginTop: '0.3rem' }}
-                >
-                  Voir les commandes &rarr;
-                </button>
+                <span style={{ fontSize: '0.72rem', color: '#DC2626', marginTop: '0.4rem', display: 'block' }}>
+                  {pendingOrdersCount} en attente de validation
+                </span>
               </div>
 
-              <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #000000', padding: '1.5rem' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#666666', textTransform: 'uppercase' }}>
-                  RDV Sur-Mesure à Valider
+              <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888888', textTransform: 'uppercase', display: 'block' }}>
+                  Catégories Actives
                 </span>
-                <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '1.7rem', fontWeight: 700, marginTop: '0.4rem', color: pendingAppointments > 0 ? '#D97706' : '#000000' }}>
-                  {pendingAppointments}
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.9rem', fontWeight: 800, display: 'block', marginTop: '0.4rem' }}>
+                  {categories.length}
                 </span>
-                <button
-                  onClick={() => setActiveTab('appointments')}
-                  style={{ background: 'none', border: 'none', padding: 0, color: '#000000', textDecoration: 'underline', fontSize: '0.72rem', cursor: 'pointer', marginTop: '0.3rem' }}
-                >
-                  Voir le planning &rarr;
-                </button>
+                <span style={{ fontSize: '0.72rem', color: '#666666', marginTop: '0.4rem', display: 'block' }}>
+                  Collections configurées
+                </span>
               </div>
 
-              <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #000000', padding: '1.5rem' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#666666', textTransform: 'uppercase' }}>
-                  Pièces en Boutique
+              <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888888', textTransform: 'uppercase', display: 'block' }}>
+                  Articles en Boutique
                 </span>
-                <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '1.7rem', fontWeight: 700, marginTop: '0.4rem' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.9rem', fontWeight: 800, display: 'block', marginTop: '0.4rem' }}>
                   {products.length}
                 </span>
-                <span style={{ fontSize: '0.72rem', color: outOfStockProducts > 0 ? '#DC2626' : '#16A34A', marginTop: '0.3rem', display: 'block' }}>
-                  {outOfStockProducts > 0 ? `${outOfStockProducts} en rupture` : 'Toutes en stock'}
+                <span style={{ fontSize: '0.72rem', color: '#166534', marginTop: '0.4rem', display: 'block' }}>
+                  {products.filter(p => p.inStock).length} en stock immédiat
                 </span>
               </div>
             </div>
 
-            {/* Deux colonnes : Dernières commandes & Derniers rendez-vous */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
-              
-              {/* Dernières commandes */}
-              <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600 }}>
-                    Commandes Récentes
-                  </h3>
-                  <button onClick={() => setActiveTab('orders')} style={{ background: 'none', border: 'none', fontSize: '0.75rem', textDecoration: 'underline', cursor: 'pointer' }}>
-                    Tout voir
-                  </button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                  {orders.slice(0, 4).map((o) => (
-                    <div key={o.id} style={{ padding: '0.8rem', border: '1px solid #F0F0F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', fontWeight: 700 }}>{o.id}</span>
-                        <span style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600 }}>{o.customerName}</span>
-                        <span style={{ fontSize: '0.72rem', color: '#666666' }}>{o.deliveryAddress}</span>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 700 }}>
-                          {(o.totalAmount || 0).toLocaleString('fr-FR')} FCFA
-                        </span>
-                        <span style={{
-                          display: 'block',
-                          fontSize: '0.65rem',
-                          fontFamily: 'var(--font-mono)',
-                          textTransform: 'uppercase',
-                          color: o.status === 'confirmee' ? '#16A34A' : o.status === 'en_attente' ? '#D97706' : '#666666'
-                        }}>
-                          {o.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {/* Accès rapide aux dernières commandes */}
+            <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem' }}>
+                  Derniers Projets de l'Atelier
+                </h3>
+                <button
+                  onClick={() => setActiveTab('orders')}
+                  style={{ background: 'none', border: 'none', color: '#000000', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  Voir tous les projets →
+                </button>
               </div>
 
-              {/* Derniers rendez-vous */}
-              <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 600 }}>
-                    Rendez-vous Sur-Mesure
-                  </h3>
-                  <button onClick={() => setActiveTab('appointments')} style={{ background: 'none', border: 'none', fontSize: '0.75rem', textDecoration: 'underline', cursor: 'pointer' }}>
-                    Tout voir
-                  </button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                  {appointments.slice(0, 4).map((a) => (
-                    <div key={a.id} style={{ padding: '0.8rem', border: '1px solid #F0F0F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                {displayedOrders.slice(0, 4).map((item) => (
+                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.8rem', border: '1px solid #EEEEEE' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <span style={{
+                        padding: '0.2rem 0.6rem',
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        backgroundColor: item.badgeBg,
+                        color: item.badgeColor,
+                        fontFamily: 'var(--font-mono)'
+                      }}>
+                        {item.typeBadge}
+                      </span>
                       <div>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', fontWeight: 700 }}>{a.id} • {a.desiredDate}</span>
-                        <span style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600 }}>{a.customerName}</span>
-                        <span style={{ fontSize: '0.72rem', color: '#666666' }}>{a.locationType} - {a.address}</span>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <span style={{
-                          fontSize: '0.65rem',
-                          fontFamily: 'var(--font-mono)',
-                          textTransform: 'uppercase',
-                          padding: '0.2rem 0.5rem',
-                          backgroundColor: a.status === 'confirme' ? '#DCFCE7' : '#FEF3C7',
-                          color: a.status === 'confirme' ? '#166534' : '#92400E'
-                        }}>
-                          {a.status}
-                        </span>
-                        <a
-                          href={`https://wa.me/${a.whatsappNumber.replace(/[^0-9]/g, '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.72rem', color: '#000000', marginTop: '0.4rem', justifyContent: 'flex-end', textDecoration: 'none' }}
-                        >
-                          <MessageCircle size={12} />
-                          <span>WhatsApp</span>
-                        </a>
+                        <span style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block' }}>{item.client}</span>
+                        <span style={{ fontSize: '0.72rem', color: '#666666' }}>{item.phone} • Réf: {item.id}</span>
                       </div>
                     </div>
-                  ))}
-                </div>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.85rem' }}>
+                      {Number(item.amount).toLocaleString('fr-FR')} FCFA
+                    </span>
+                  </div>
+                ))}
               </div>
-
             </div>
-
           </div>
         )}
 
         {/* =========================================================================
-            TAB 2 : GESTION DES PRODUITS / VÊTEMENTS
+            TAB 2 : COMMANDES & PROJETS ATELIER (CONCRET & COMPLET)
+            ========================================================================= */}
+        {activeTab === 'orders' && (
+          <div>
+            {/* Barre de filtres par pilules */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.5rem' }}>
+              {[
+                { id: 'ALL', label: `Tous les travaux (${totalAllOrders})` },
+                { id: 'couture', label: `✂️ Confection Sur-Mesure (${appointments.length})` },
+                { id: 'flocage', label: `🎨 Flocage & Marquage (${flockingRequests.length})` },
+                { id: 'pret-a-porter', label: `🛍️ Boutique Prêt-à-Porter (${orders.length})` }
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setOrderFilter(f.id)}
+                  style={{
+                    padding: '0.55rem 1rem',
+                    border: orderFilter === f.id ? '2px solid #000000' : '1px solid #DDDDDD',
+                    backgroundColor: orderFilter === f.id ? '#000000' : '#FFFFFF',
+                    color: orderFilter === f.id ? '#FFFFFF' : '#000000',
+                    fontSize: '0.75rem',
+                    fontFamily: 'var(--font-mono)',
+                    cursor: 'pointer',
+                    fontWeight: orderFilter === f.id ? 700 : 500,
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Tableau complet des commandes & projets */}
+            <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem', overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #000000', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase' }}>
+                    <th style={{ padding: '0.8rem 0.5rem' }}>Type & Réf</th>
+                    <th style={{ padding: '0.8rem 0.5rem' }}>Client & Contact</th>
+                    <th style={{ padding: '0.8rem 0.5rem' }}>Détails Concrets du Projet</th>
+                    <th style={{ padding: '0.8rem 0.5rem' }}>Montant / Devis</th>
+                    <th style={{ padding: '0.8rem 0.5rem' }}>Statut</th>
+                    <th style={{ padding: '0.8rem 0.5rem', textAlign: 'right' }}>Action Directe</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayedOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" style={{ padding: '3rem 1rem', textAlign: 'center', color: '#888888' }}>
+                        Aucun travail trouvé dans cette catégorie.
+                      </td>
+                    </tr>
+                  ) : (
+                    displayedOrders.map((item) => (
+                      <tr key={item.id} style={{ borderBottom: '1px solid #EEEEEE' }}>
+                        <td style={{ padding: '0.8rem 0.5rem', verticalAlign: 'top' }}>
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '0.2rem 0.5rem',
+                            backgroundColor: item.badgeBg,
+                            color: item.badgeColor,
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: '0.65rem',
+                            fontWeight: 700,
+                            marginBottom: '0.3rem'
+                          }}>
+                            {item.typeBadge}
+                          </span>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.78rem', display: 'block' }}>
+                            {item.id}
+                          </span>
+                          <span style={{ fontSize: '0.7rem', color: '#888888' }}>
+                            {item.date ? new Date(item.date).toLocaleDateString('fr-FR') : 'Aujourd’hui'}
+                          </span>
+                        </td>
+
+                        <td style={{ padding: '0.8rem 0.5rem', verticalAlign: 'top' }}>
+                          <span style={{ fontWeight: 600, display: 'block' }}>{item.client}</span>
+                          <span style={{ fontSize: '0.74rem', color: '#666666', fontFamily: 'var(--font-mono)' }}>
+                            {item.phone}
+                          </span>
+                        </td>
+
+                        <td style={{ padding: '0.8rem 0.5rem', verticalAlign: 'top', maxWidth: '380px' }}>
+                          {item.concreteDetails}
+                        </td>
+
+                        <td style={{ padding: '0.8rem 0.5rem', verticalAlign: 'top', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+                          {Number(item.amount) > 0 ? `${Number(item.amount).toLocaleString('fr-FR')} FCFA` : 'Sur Devis'}
+                        </td>
+
+                        <td style={{ padding: '0.8rem 0.5rem', verticalAlign: 'top' }}>
+                          <select
+                            value={item.status}
+                            onChange={(e) => item.onStatusChange(e.target.value)}
+                            style={{
+                              padding: '0.35rem 0.6rem',
+                              border: '1px solid #CCCCCC',
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '0.72rem',
+                              fontWeight: 600,
+                              backgroundColor:
+                                item.status === 'confirmee' || item.status === 'confirme' || item.status === 'terminee'
+                                  ? '#DCFCE7'
+                                  : item.status === 'en_production' || item.status === 'livree'
+                                  ? '#DBEAFE'
+                                  : '#FEF3C7'
+                            }}
+                          >
+                            <option value="en_attente">En attente</option>
+                            <option value="confirmee">Confirmée</option>
+                            <option value="en_production">En confection / production</option>
+                            <option value="livree">Prête / Livrée</option>
+                            <option value="annulee">Annulée</option>
+                          </select>
+                        </td>
+
+                        <td style={{ padding: '0.8rem 0.5rem', verticalAlign: 'top', textAlign: 'right' }}>
+                          <a
+                            href={`https://wa.me/${String(item.phone).replace(/[^0-9]/g, '')}?text=${encodeURIComponent(item.whatsappMsg)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              padding: '0.45rem 0.85rem',
+                              backgroundColor: '#25D366',
+                              color: '#FFFFFF',
+                              textDecoration: 'none',
+                              fontSize: '0.72rem',
+                              fontWeight: 600,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.4rem',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            <MessageCircle size={14} />
+                            <span>WhatsApp</span>
+                          </a>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            TAB 3 : GESTION DES CATÉGORIES (CRÉATION, MODIFICATION, SUPPRESSION)
+            ========================================================================= */}
+        {activeTab === 'categories' && (
+          <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem' }}>
+                  Toutes les Catégories de l'Atelier
+                </h3>
+                <p style={{ color: '#666666', fontSize: '0.82rem', marginTop: '0.2rem' }}>
+                  Ces catégories apparaissent automatiquement dans le filtre de la boutique et pour la création de vos vêtements.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsAddCatModalOpen(true)}
+                className="btn-stylist-dark"
+                style={{ padding: '0.65rem 1.2rem', fontSize: '0.74rem' }}
+              >
+                <Plus size={14} />
+                <span>AJOUTER UNE CATÉGORIE</span>
+              </button>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #000000', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase' }}>
+                    <th style={{ padding: '0.8rem 0.5rem' }}>Nom affiché</th>
+                    <th style={{ padding: '0.8rem 0.5rem' }}>Identifiant (Slug)</th>
+                    <th style={{ padding: '0.8rem 0.5rem' }}>Type</th>
+                    <th style={{ padding: '0.8rem 0.5rem' }}>Articles associés</th>
+                    <th style={{ padding: '0.8rem 0.5rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categories.map((c) => (
+                    <tr key={c.id || c.slug} style={{ borderBottom: '1px solid #EEEEEE' }}>
+                      <td style={{ padding: '0.8rem 0.5rem', fontWeight: 600 }}>
+                        {c.name}
+                      </td>
+                      <td style={{ padding: '0.8rem 0.5rem', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#666666' }}>
+                        {c.slug || c.id}
+                      </td>
+                      <td style={{ padding: '0.8rem 0.5rem' }}>
+                        <span style={{
+                          padding: '0.2rem 0.55rem',
+                          fontSize: '0.68rem',
+                          fontFamily: 'var(--font-mono)',
+                          fontWeight: 600,
+                          backgroundColor: c.type === 'lookbook' ? '#F3F4F6' : '#DCFCE7',
+                          color: c.type === 'lookbook' ? '#000000' : '#166534'
+                        }}>
+                          {c.type === 'lookbook' ? 'Galerie Lookbook' : 'Boutique Prêt-à-Porter'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.8rem 0.5rem', fontFamily: 'var(--font-mono)' }}>
+                        {products.filter(p => p.category === (c.slug || c.id)).length} pièce(s)
+                      </td>
+                      <td style={{ padding: '0.8rem 0.5rem', textAlign: 'right' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Voulez-vous supprimer la catégorie "${c.name}" ?`)) {
+                              deleteCategory(c.id || c.slug);
+                            }
+                          }}
+                          style={{
+                            padding: '0.35rem 0.6rem',
+                            border: '1px solid #FFCDD2',
+                            backgroundColor: '#FFEBEE',
+                            color: '#C62828',
+                            fontSize: '0.72rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            TAB 4 : CATALOGUE DE VÊTEMENTS (PRODUITS)
             ========================================================================= */}
         {activeTab === 'products' && (
           <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
             
-            {/* Barre de recherche et filtres de catégorie */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#F8F8F8', border: '1px solid #CCCCCC', padding: '0.4rem 0.8rem', flex: 1, maxWidth: '340px' }}>
-                <Search size={15} color="#888888" />
-                <input
-                  type="text"
-                  placeholder="Rechercher un vêtement..."
-                  value={prodSearch}
-                  onChange={(e) => setProdSearch(e.target.value)}
-                  style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '0.82rem' }}
-                />
+            {/* Filtres & Recherche de vêtements */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.8rem', flex: 1, minWidth: '280px' }}>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <Search size={16} style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: '#888888' }} />
+                  <input
+                    type="text"
+                    placeholder="Rechercher par nom..."
+                    value={prodSearch}
+                    onChange={(e) => setProdSearch(e.target.value)}
+                    style={{ width: '100%', padding: '0.6rem 0.8rem 0.6rem 2.2rem', border: '1px solid #CCCCCC', fontSize: '0.8rem' }}
+                  />
+                </div>
+
+                <select
+                  value={prodCategory}
+                  onChange={(e) => setProdCategory(e.target.value)}
+                  style={{ padding: '0.6rem 1rem', border: '1px solid #CCCCCC', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}
+                >
+                  <option value="ALL">Toutes les catégories</option>
+                  {categories.map((c) => (
+                    <option key={c.id || c.slug} value={c.slug || c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                {['ALL', 'HOMME', 'FEMME', 'SUR_MESURE', 'STREETWEAR'].map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setProdCategory(cat)}
-                    style={{
-                      padding: '0.4rem 0.8rem',
-                      border: prodCategory === cat ? '1px solid #000000' : '1px solid #CCCCCC',
-                      backgroundColor: prodCategory === cat ? '#000000' : '#FFFFFF',
-                      color: prodCategory === cat ? '#FFFFFF' : '#000000',
-                      fontSize: '0.72rem',
-                      fontFamily: 'var(--font-mono)',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(true)}
+                className="btn-stylist-dark"
+                style={{ padding: '0.6rem 1.4rem', fontSize: '0.75rem' }}
+              >
+                <Plus size={15} />
+                <span>+ NOUVEAU VÊTEMENT</span>
+              </button>
             </div>
 
             {/* Tableau des vêtements */}
@@ -545,10 +934,10 @@ export default function AdminDashboard() {
                         <span style={{ fontSize: '0.7rem', color: '#888888', fontFamily: 'var(--font-mono)' }}>ID: {p.id}</span>
                       </td>
                       <td style={{ padding: '0.7rem 0.5rem', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
-                        {p.category}
+                        {categories.find(c => c.slug === p.category)?.name || p.category}
                       </td>
                       <td style={{ padding: '0.7rem 0.5rem', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                        {p.price.toLocaleString('fr-FR')} FCFA
+                        {Number(p.price).toLocaleString('fr-FR')} FCFA
                       </td>
                       <td style={{ padding: '0.7rem 0.5rem' }}>
                         <button
@@ -600,202 +989,39 @@ export default function AdminDashboard() {
         )}
 
         {/* =========================================================================
-            TAB 3 : GESTION DES COMMANDES (PANIER)
-            ========================================================================= */}
-        {activeTab === 'orders' && (
-          <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #000000', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase' }}>
-                    <th style={{ padding: '0.8rem 0.5rem' }}>Réf & Date</th>
-                    <th style={{ padding: '0.8rem 0.5rem' }}>Client & Contact</th>
-                    <th style={{ padding: '0.8rem 0.5rem' }}>Articles</th>
-                    <th style={{ padding: '0.8rem 0.5rem' }}>Total</th>
-                    <th style={{ padding: '0.8rem 0.5rem' }}>Statut</th>
-                    <th style={{ padding: '0.8rem 0.5rem', textAlign: 'right' }}>WhatsApp</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((o) => (
-                    <tr key={o.id} style={{ borderBottom: '1px solid #EEEEEE' }}>
-                      <td style={{ padding: '0.8rem 0.5rem' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, display: 'block' }}>{o.id}</span>
-                        <span style={{ fontSize: '0.7rem', color: '#888888' }}>
-                          {new Date(o.createdAt).toLocaleDateString('fr-FR')}
-                        </span>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.5rem' }}>
-                        <span style={{ fontWeight: 600, display: 'block' }}>{o.customerName}</span>
-                        <span style={{ fontSize: '0.75rem', color: '#666666' }}>{o.whatsappNumber}</span>
-                        <span style={{ fontSize: '0.72rem', color: '#888888', display: 'block' }}>{o.deliveryAddress}</span>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.5rem' }}>
-                        {o.items && o.items.map((it, idx) => (
-                          <div key={idx} style={{ fontSize: '0.75rem' }}>
-                            • {it.name} ({it.size}) × {it.quantity}
-                          </div>
-                        ))}
-                      </td>
-                      <td style={{ padding: '0.8rem 0.5rem', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                        {(o.totalAmount || 0).toLocaleString('fr-FR')} FCFA
-                      </td>
-                      <td style={{ padding: '0.8rem 0.5rem' }}>
-                        <select
-                          value={o.status}
-                          onChange={(e) => updateOrderStatus(o.id, e.target.value)}
-                          style={{
-                            padding: '0.3rem 0.5rem',
-                            border: '1px solid #CCCCCC',
-                            fontFamily: 'var(--font-mono)',
-                            fontSize: '0.72rem',
-                            backgroundColor: o.status === 'confirmee' ? '#DCFCE7' : o.status === 'livree' ? '#DBEAFE' : '#FEF3C7'
-                          }}
-                        >
-                          <option value="en_attente">En attente</option>
-                          <option value="confirmee">Confirmée</option>
-                          <option value="livree">Livrée</option>
-                          <option value="annulee">Annulée</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.5rem', textAlign: 'right' }}>
-                        <a
-                          href={`https://wa.me/${o.whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Bonjour ${o.customerName}, nous faisons le suivi de votre commande AllFashion ${o.id}.`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            padding: '0.4rem 0.8rem',
-                            backgroundColor: '#25D366',
-                            color: '#FFFFFF',
-                            textDecoration: 'none',
-                            fontSize: '0.72rem',
-                            fontWeight: 600,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.4rem'
-                          }}
-                        >
-                          <MessageCircle size={13} />
-                          <span>Écrire</span>
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* =========================================================================
-            TAB 4 : GESTION DES RENDEZ-VOUS SUR-MESURE
-            ========================================================================= */}
-        {activeTab === 'appointments' && (
-          <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #000000', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase' }}>
-                    <th style={{ padding: '0.8rem 0.5rem' }}>Réf & Date Souhaitée</th>
-                    <th style={{ padding: '0.8rem 0.5rem' }}>Client</th>
-                    <th style={{ padding: '0.8rem 0.5rem' }}>Lieu & Adresse</th>
-                    <th style={{ padding: '0.8rem 0.5rem' }}>Projet de Tenue</th>
-                    <th style={{ padding: '0.8rem 0.5rem' }}>Statut</th>
-                    <th style={{ padding: '0.8rem 0.5rem', textAlign: 'right' }}>WhatsApp</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {appointments.map((a) => (
-                    <tr key={a.id} style={{ borderBottom: '1px solid #EEEEEE' }}>
-                      <td style={{ padding: '0.8rem 0.5rem' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, display: 'block' }}>{a.id}</span>
-                        <span style={{ fontSize: '0.78rem', color: '#000000', fontWeight: 600 }}>{a.desiredDate}</span>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.5rem' }}>
-                        <span style={{ fontWeight: 600, display: 'block' }}>{a.customerName}</span>
-                        <span style={{ fontSize: '0.75rem', color: '#666666' }}>{a.whatsappNumber}</span>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.5rem' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', display: 'block', fontWeight: 700 }}>
-                          {a.locationType}
-                        </span>
-                        <span style={{ fontSize: '0.75rem', color: '#555555' }}>{a.address}</span>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.5rem', fontSize: '0.75rem', color: '#444444' }}>
-                        {a.garmentIdea || 'Non précisé'}
-                      </td>
-                      <td style={{ padding: '0.8rem 0.5rem' }}>
-                        <select
-                          value={a.status}
-                          onChange={(e) => updateAppointmentStatus(a.id, e.target.value)}
-                          style={{
-                            padding: '0.3rem 0.5rem',
-                            border: '1px solid #CCCCCC',
-                            fontFamily: 'var(--font-mono)',
-                            fontSize: '0.72rem',
-                            backgroundColor: a.status === 'confirme' ? '#DCFCE7' : a.status === 'termine' ? '#F3F4F6' : '#FEF3C7'
-                          }}
-                        >
-                          <option value="a_confirmer">À confirmer</option>
-                          <option value="confirme">Confirmé</option>
-                          <option value="termine">Terminé</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.5rem', textAlign: 'right' }}>
-                        <a
-                          href={`https://wa.me/${a.whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Bonjour ${a.customerName}, le styliste AllFashion vous contacte pour convenir de l'heure exacte de votre prise de mesure le ${a.desiredDate}.`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            padding: '0.4rem 0.8rem',
-                            backgroundColor: '#25D366',
-                            color: '#FFFFFF',
-                            textDecoration: 'none',
-                            fontSize: '0.72rem',
-                            fontWeight: 600,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.4rem'
-                          }}
-                        >
-                          <MessageCircle size={13} />
-                          <span>Confirmer</span>
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* =========================================================================
-            TAB 5 : GESTION DES RÉALISATIONS
+            TAB 5 : GALERIE / PORTFOLIO LOOKBOOK
             ========================================================================= */}
         {activeTab === 'realisations' && (
           <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem' }}>
+                  Galerie & Réalisations de l'Atelier
+                </h3>
+                <p style={{ color: '#666666', fontSize: '0.82rem', marginTop: '0.2rem' }}>
+                  Photos haute qualité affichées sur la page d'accueil et dans le lookbook pour inspirer les clients.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.2rem' }}>
               {realisations.map((r) => (
-                <div key={r.id} style={{ border: '1px solid #E5E5E5', overflow: 'hidden' }}>
+                <div key={r.id} style={{ border: '1px solid #E5E5E5', backgroundColor: '#FFFFFF' }}>
                   <img src={r.image} alt={r.title} style={{ width: '100%', height: '220px', objectFit: 'cover' }} />
-                  <div style={{ padding: '1rem' }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888888', textTransform: 'uppercase' }}>
+                  <div style={{ padding: '0.9rem' }}>
+                    <span style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono)', color: '#888888', textTransform: 'uppercase' }}>
                       {r.category}
                     </span>
-                    <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.15rem', marginTop: '0.2rem', marginBottom: '0.4rem' }}>
-                      {r.title}
-                    </h4>
-                    <p style={{ fontSize: '0.78rem', color: '#666666', lineHeight: 1.4, marginBottom: '0.8rem' }}>
-                      {r.desc}
-                    </p>
+                    <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', marginTop: '0.2rem' }}>{r.title}</h4>
+                    <p style={{ fontSize: '0.75rem', color: '#666666', marginTop: '0.3rem', lineHeight: 1.4 }}>{r.desc}</p>
                     <button
+                      type="button"
                       onClick={() => {
-                        if (confirm(`Supprimer la réalisation "${r.title}" ?`)) {
+                        if (confirm(`Supprimer "${r.title}" ?`)) {
                           deleteRealisation(r.id);
                         }
                       }}
-                      style={{ padding: '0.35rem 0.7rem', border: '1px solid #FFCCCC', backgroundColor: '#FFF5F5', color: '#DC2626', fontSize: '0.7rem', cursor: 'pointer' }}
+                      style={{ marginTop: '0.8rem', padding: '0.3rem 0.6rem', border: '1px solid #FFCCCC', backgroundColor: '#FFF5F5', color: '#DC2626', fontSize: '0.7rem', cursor: 'pointer' }}
                     >
                       Supprimer
                     </button>
@@ -807,66 +1033,357 @@ export default function AdminDashboard() {
         )}
 
         {/* =========================================================================
-            TAB 6 : BASE DE DONNÉES TABLEPLUS
+            TAB 6 : BASE DE DONNÉES & TABLEPLUS
             ========================================================================= */}
         {activeTab === 'database' && (
-          <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #000000', padding: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.2rem' }}>
-              <Database size={24} />
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem' }}>
-                Base de données TablePlus
-              </h2>
-            </div>
-
-            <p style={{ fontSize: '0.92rem', color: '#444444', lineHeight: 1.6, maxWidth: '750px', marginBottom: '1.8rem' }}>
-              Votre base de données AllFashion est créée et disponible localement. Vous pouvez l'ouvrir immédiatement dans <strong>TablePlus</strong> pour inspecter, modifier et gérer vos tables.
+          <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '2rem' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '0.5rem' }}>
+              Connexion TablePlus & Base de Données
+            </h3>
+            <p style={{ color: '#666666', fontSize: '0.85rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+              Le backend fonctionne avec votre base de données MySQL locale (DBngin / Herd) et synchronise toutes les données.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-              
-              {/* Option SQLite direct */}
-              <div style={{ padding: '1.4rem', border: '1px solid #CCCCCC', backgroundColor: '#FAFAFA' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
-                  Option 1 : SQLite (Ouverture directe en 1 clic)
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+              <div style={{ padding: '1.2rem', backgroundColor: '#F8F9FA', border: '1px solid #E9ECEF' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>
+                  Configuration MySQL TablePlus
                 </span>
-                <p style={{ fontSize: '0.82rem', color: '#666666', marginTop: '0.5rem', lineHeight: 1.5 }}>
-                  Fichier créé à l'emplacement :<br />
-                  <code style={{ display: 'block', backgroundColor: '#EEEEEE', padding: '0.5rem', marginTop: '0.4rem', fontSize: '0.75rem', wordBreak: 'break-all' }}>
-                    database/allfashion.sqlite
-                  </code>
-                </p>
-                <div style={{ marginTop: '1rem', fontSize: '0.78rem', color: '#333333' }}>
-                  💡 <em>Double-cliquez sur ce fichier dans le Finder ou ouvrez-le avec TablePlus pour voir les tables <code>products</code>, <code>orders</code>, <code>appointments</code>.</em>
-                </div>
+                <ul style={{ fontSize: '0.8rem', color: '#495057', listStyle: 'none', padding: 0, margin: 0, lineHeight: 1.8 }}>
+                  <li><strong>Host :</strong> 127.0.0.1</li>
+                  <li><strong>Port :</strong> 3306</li>
+                  <li><strong>Utilisateur :</strong> root</li>
+                  <li><strong>Mot de passe :</strong> (vide)</li>
+                  <li><strong>Base de données :</strong> allfashion</li>
+                </ul>
               </div>
 
-              {/* Option MySQL */}
-              <div style={{ padding: '1.4rem', border: '1px solid #CCCCCC', backgroundColor: '#FAFAFA' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
-                  Option 2 : MySQL / Laravel Herd (Port 3306)
+              <div style={{ padding: '1.2rem', backgroundColor: '#F8F9FA', border: '1px solid #E9ECEF' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>
+                  Fichier SQLite direct
                 </span>
-                <p style={{ fontSize: '0.82rem', color: '#666666', marginTop: '0.5rem', lineHeight: 1.5 }}>
-                  Script SQL complet généré à l'emplacement :<br />
-                  <code style={{ display: 'block', backgroundColor: '#EEEEEE', padding: '0.5rem', marginTop: '0.4rem', fontSize: '0.75rem', wordBreak: 'break-all' }}>
-                    database/mysql_schema.sql
-                  </code>
+                <p style={{ fontSize: '0.8rem', color: '#495057', lineHeight: 1.5 }}>
+                  Vous pouvez aussi ouvrir directement le fichier SQLite dans TablePlus en lançant dans le terminal :
                 </p>
-                <div style={{ marginTop: '1rem', fontSize: '0.78rem', color: '#333333' }}>
-                  💡 <em>Dans TablePlus, créez une connexion MySQL (Host: 127.0.0.1, Port: 3306, User: root) et exécutez ce script pour créer la base <code>allfashion</code>.</em>
-                </div>
+                <code style={{ display: 'block', padding: '0.5rem', backgroundColor: '#000000', color: '#FFFFFF', fontSize: '0.72rem', marginTop: '0.5rem' }}>
+                  open backend/database/database.sqlite -a TablePlus
+                </code>
               </div>
-
-            </div>
-
-            <div style={{ padding: '1rem 1.4rem', backgroundColor: '#F0F9FF', border: '1px solid #BAE6FD', color: '#0369A1', fontSize: '0.82rem' }}>
-              ✓ <strong>Tables prêtes :</strong> <code>products</code>, <code>categories</code>, <code>orders</code>, <code>appointments</code>, <code>realisations</code>, <code>admins</code>.
             </div>
           </div>
         )}
 
       </main>
 
-      {/* MODAL : AJOUTER UN PRODUIT */}
+      {/* =========================================================================
+          MODAL 1 : NOUVELLE COMMANDE ATELIER (COUTURE, FLOCAGE, PRÊT-À-PORTER)
+          ========================================================================= */}
+      {isAddOrderModalOpen && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            border: '2px solid #000000',
+            width: '100%',
+            maxWidth: '560px',
+            padding: '2rem',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888888', textTransform: 'uppercase' }}>
+                  Enregistrement Manuel
+                </span>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem' }}>
+                  Nouvelle Commande Atelier
+                </h3>
+              </div>
+              <button onClick={() => setIsAddOrderModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddOrderSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem', fontWeight: 600 }}>
+                  Type de Travail *
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                  {[
+                    { id: 'couture', label: '✂️ Couture' },
+                    { id: 'flocage', label: '🎨 Flocage' },
+                    { id: 'pret-a-porter', label: '🛍️ Prêt-à-Porter' }
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setNewOrder({ ...newOrder, type: t.id })}
+                      style={{
+                        padding: '0.65rem 0.5rem',
+                        border: newOrder.type === t.id ? '2px solid #000000' : '1px solid #DDDDDD',
+                        backgroundColor: newOrder.type === t.id ? '#000000' : '#FFFFFF',
+                        color: newOrder.type === t.id ? '#FFFFFF' : '#000000',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        textAlign: 'center'
+                      }}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                    Nom du client *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ex: Patrice Talon"
+                    value={newOrder.customerName}
+                    onChange={(e) => setNewOrder({ ...newOrder, customerName: e.target.value })}
+                    className="input-stylist"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                    Téléphone WhatsApp *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ex: +229 97 00 00 00"
+                    value={newOrder.customerPhone}
+                    onChange={(e) => setNewOrder({ ...newOrder, customerPhone: e.target.value })}
+                    className="input-stylist"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                  Adresse / Lieu de rendez-vous
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Quartier Les Cocotiers, Cotonou ou À l'Atelier"
+                  value={newOrder.deliveryAddress}
+                  onChange={(e) => setNewOrder({ ...newOrder, deliveryAddress: e.target.value })}
+                  className="input-stylist"
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                  Détails du travail / Mensurations / Consignes *
+                </label>
+                <textarea
+                  rows="3"
+                  placeholder={
+                    newOrder.type === 'couture'
+                      ? 'Ex: Costume 3 pièces noir, épaule 48, tour de taille 84, longueur veste 76...'
+                      : newOrder.type === 'flocage'
+                      ? 'Ex: 10 Polos noirs avec logo doré dos (20cm) + nom côté cœur...'
+                      : 'Ex: Veste Croisée Soie Noire, Taille L, quantité 1...'
+                  }
+                  value={newOrder.details}
+                  onChange={(e) => setNewOrder({ ...newOrder, details: e.target.value })}
+                  className="input-stylist"
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                    Montant / Devis (FCFA)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 95000"
+                    value={newOrder.amount}
+                    onChange={(e) => setNewOrder({ ...newOrder, amount: e.target.value })}
+                    className="input-stylist"
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                    Statut initial
+                  </label>
+                  <select
+                    value={newOrder.status}
+                    onChange={(e) => setNewOrder({ ...newOrder, status: e.target.value })}
+                    className="input-stylist"
+                  >
+                    <option value="en_attente">En attente</option>
+                    <option value="confirmee">Confirmée</option>
+                    <option value="en_production">En confection / production</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: '0.9rem',
+                    backgroundColor: '#000000',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    fontFamily: 'var(--font-mono)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ENREGISTRER LA COMMANDE
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAddOrderModalOpen(false)}
+                  style={{
+                    padding: '0.9rem 1.4rem',
+                    border: '1px solid #CCCCCC',
+                    backgroundColor: '#FFFFFF',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >
+                  Annuler
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL 2 : NOUVELLE CATÉGORIE
+          ========================================================================= */}
+      {isAddCatModalOpen && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            border: '2px solid #000000',
+            width: '100%',
+            maxWidth: '460px',
+            padding: '2rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem' }}>
+                Ajouter une Catégorie
+              </h3>
+              <button onClick={() => setIsAddCatModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddCategorySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+              <div>
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                  Nom de la catégorie *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Chemises Soie, Robes Cérémonie..."
+                  value={newCat.name}
+                  onChange={(e) => setNewCat({ ...newCat, name: e.target.value })}
+                  className="input-stylist"
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                  Type d'utilisation *
+                </label>
+                <select
+                  value={newCat.type}
+                  onChange={(e) => setNewCat({ ...newCat, type: e.target.value })}
+                  className="input-stylist"
+                >
+                  <option value="shop">Boutique (Prêt-à-Porter)</option>
+                  <option value="lookbook">Galerie Lookbook (Atelier)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                  Ordre d'affichage (Numéro)
+                </label>
+                <input
+                  type="number"
+                  placeholder="Ex: 1"
+                  value={newCat.sort_order}
+                  onChange={(e) => setNewCat({ ...newCat, sort_order: e.target.value })}
+                  className="input-stylist"
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: '0.9rem',
+                    backgroundColor: '#000000',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    fontFamily: 'var(--font-mono)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  CRÉER LA CATÉGORIE
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAddCatModalOpen(false)}
+                  style={{
+                    padding: '0.9rem 1.4rem',
+                    border: '1px solid #CCCCCC',
+                    backgroundColor: '#FFFFFF',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >
+                  Annuler
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL 3 : AJOUTER UN VÊTEMENT (PRODUIT)
+          ========================================================================= */}
       {isAddModalOpen && (
         <div style={{
           position: 'fixed',
@@ -883,13 +1400,13 @@ export default function AdminDashboard() {
             border: '2px solid #000000',
             width: '100%',
             maxWidth: '560px',
+            padding: '2rem',
             maxHeight: '90vh',
-            overflowY: 'auto',
-            padding: '2rem'
+            overflowY: 'auto'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem' }}>
-                Ajouter une Nouvelle Pièce
+                Ajouter une Pièce au Catalogue
               </h3>
               <button onClick={() => setIsAddModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} />
@@ -921,10 +1438,11 @@ export default function AdminDashboard() {
                     onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
                     className="input-stylist"
                   >
-                    <option value="HOMME">HOMME</option>
-                    <option value="FEMME">FEMME</option>
-                    <option value="SUR_MESURE">SUR_MESURE</option>
-                    <option value="STREETWEAR">STREETWEAR</option>
+                    {categories.map((c) => (
+                      <option key={c.id || c.slug} value={c.slug || c.id}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -1040,7 +1558,9 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* MODAL : MODIFIER UN PRODUIT */}
+      {/* =========================================================================
+          MODAL 4 : MODIFIER UN VÊTEMENT (PRODUIT)
+          ========================================================================= */}
       {editingProd && (
         <div style={{
           position: 'fixed',
@@ -1092,10 +1612,11 @@ export default function AdminDashboard() {
                     onChange={(e) => setEditingProd({ ...editingProd, category: e.target.value })}
                     className="input-stylist"
                   >
-                    <option value="HOMME">HOMME</option>
-                    <option value="FEMME">FEMME</option>
-                    <option value="SUR_MESURE">SUR_MESURE</option>
-                    <option value="STREETWEAR">STREETWEAR</option>
+                    {categories.map((c) => (
+                      <option key={c.id || c.slug} value={c.slug || c.id}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

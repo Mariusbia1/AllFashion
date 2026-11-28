@@ -80,6 +80,21 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ status })
     }),
+    // Catégories
+    getCategories: () => request('/admin/categories'),
+    createCategory: (data) => request('/admin/categories', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+    updateCategory: (id, data) => request(`/admin/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    }),
+    deleteCategory: (id) => request(`/admin/categories/${id}`, {
+      method: 'DELETE'
+    }),
+
+    // Produits
     getProducts: () => request('/admin/products'),
     createProduct: (data) => request('/admin/products', {
       method: 'POST',
@@ -91,6 +106,17 @@ export const api = {
     }),
     deleteProduct: (id) => request(`/admin/products/${id}`, {
       method: 'DELETE'
+    }),
+
+    // Commandes & Projets (Manuel & Flocage)
+    createManualOrder: (data) => request('/admin/orders', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+    getFlockingRequests: () => request('/admin/flocking-requests'),
+    updateFlockingStatus: (id, status) => request(`/admin/flocking-requests/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status })
     })
   }
 };

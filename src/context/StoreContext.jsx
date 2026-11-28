@@ -34,6 +34,7 @@ const INITIAL_REALISATIONS = [
 const INITIAL_ORDERS = [
   {
     id: 'CMD-2026-0001',
+    type: 'pret-a-porter',
     customerName: 'Koffi Mensah',
     whatsappNumber: '+229 97 12 34 56',
     deliveryAddress: 'Haie Vive, Cotonou',
@@ -48,13 +49,30 @@ const INITIAL_ORDERS = [
 const INITIAL_APPOINTMENTS = [
   {
     id: 'RDV-2026-0001',
+    type: 'couture',
     clientName: 'Patrice Talon',
     clientPhone: '+229 66 55 44 33',
     locationType: 'domicile',
     address: 'Quartier Les Cocotiers, Cotonou',
     dateSlot: '2026-12-05',
-    garmentIdea: 'Costume 3 pièces Cérémonie sur-mesure',
+    garmentIdea: 'Costume 3 pièces Cérémonie sur-mesure (Veste, Pantalon, Gilet)',
     status: 'confirme',
+    createdAt: new Date().toISOString()
+  }
+];
+
+const INITIAL_FLOCKING = [
+  {
+    id: 'FLOC-2026-0001',
+    type: 'flocage',
+    clientName: 'Sèna Hounnou',
+    clientPhone: '+229 97 45 67 89',
+    garmentType: 'Hoodies Coton Noir Épais',
+    position: 'Dos (Logo 25cm) + Poitrine gauche (Prénoms)',
+    quantity: 12,
+    instructions: 'Marquage or mat premium pour équipe de basketball',
+    quotedPrice: 84000,
+    status: 'en_production',
     createdAt: new Date().toISOString()
   }
 ];
@@ -80,19 +98,25 @@ export function StoreProvider({ children }) {
     return saved ? JSON.parse(saved) : CATEGORIES;
   });
 
-  // Commandes
+  // Commandes Prêt-à-Porter
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('allfashion_orders');
     return saved ? JSON.parse(saved) : INITIAL_ORDERS;
   });
 
-  // Rendez-vous
+  // Rendez-vous Sur-Mesure (Couture)
   const [appointments, setAppointments] = useState(() => {
     const saved = localStorage.getItem('allfashion_appointments');
     return saved ? JSON.parse(saved) : INITIAL_APPOINTMENTS;
   });
 
-  // Réalisations
+  // Demandes de Flocage
+  const [flockingRequests, setFlockingRequests] = useState(() => {
+    const saved = localStorage.getItem('allfashion_flocking_requests');
+    return saved ? JSON.parse(saved) : INITIAL_FLOCKING;
+  });
+
+  // Réalisations Lookbook
   const [realisations, setRealisations] = useState(() => {
     const saved = localStorage.getItem('allfashion_realisations');
     return saved ? JSON.parse(saved) : INITIAL_REALISATIONS;
@@ -111,9 +135,10 @@ export function StoreProvider({ children }) {
     let isMounted = true;
     async function syncWithLaravel() {
       try {
-        const [prodRes, catRes] = await Promise.all([
+        const [prodRes, catRes, flocRes] = await Promise.all([
           api.getProducts().catch(() => null),
           api.getCategories().catch(() => null),
+          api.admin.getFlockingRequests().catch(() => null),
         ]);
 
         if (isMounted && prodRes && prodRes.data && prodRes.data.length > 0) {
@@ -141,14 +166,31 @@ export function StoreProvider({ children }) {
 
         if (isMounted && catRes && catRes.data && catRes.data.length > 0) {
           setCategories(catRes.data.map(c => ({
-            id: c.slug,
+            id: c.slug || c.id,
+            slug: c.slug,
             name: c.name,
+            type: c.type || 'shop',
             count: c.products_count || 0,
             image: '/assets/img/creation-1.jpg'
           })));
         }
+
+        if (isMounted && flocRes && flocRes.data && flocRes.data.length > 0) {
+          setFlockingRequests(flocRes.data.map(f => ({
+            id: f.reference || `FLOC-${f.id}`,
+            reference: f.reference,
+            clientName: f.client_name,
+            clientPhone: f.client_phone,
+            garmentType: f.garment_type,
+            position: f.position,
+            quantity: f.quantity,
+            instructions: f.instructions,
+            quotedPrice: f.quoted_price,
+            status: f.status,
+            createdAt: f.created_at
+          })));
+        }
       } catch (err) {
-        // En cas d'indisponibilité du serveur, le store local assure la continuité
         console.info('[Store] Utilisation des données locales');
       }
     }
@@ -163,12 +205,20 @@ export function StoreProvider({ children }) {
   }, [products]);
 
   useEffect(() => {
+    localStorage.setItem('allfashion_categories', JSON.stringify(categories));
+  }, [categories]);
+
+  useEffect(() => {
     localStorage.setItem('allfashion_orders', JSON.stringify(orders));
   }, [orders]);
 
   useEffect(() => {
     localStorage.setItem('allfashion_appointments', JSON.stringify(appointments));
   }, [appointments]);
+
+  useEffect(() => {
+    localStorage.setItem('allfashion_flocking_requests', JSON.stringify(flockingRequests));
+  }, [flockingRequests]);
 
   useEffect(() => {
     localStorage.setItem('allfashion_realisations', JSON.stringify(realisations));
@@ -189,16 +239,53 @@ export function StoreProvider({ children }) {
     localStorage.removeItem('allfashion_admin_auth');
   };
 
+  // Actions Catégories
+  const addCategory = async (catData) => {
+    const slug = (catData.slug || catData.name).toUpperCase().trim().replace(/[^A-Z0-9]/gi, '_');
+    const newCat = {
+      id: slug,
+      slug: slug,
+      name: catData.name,
+      type: catData.type || 'shop',
+      count: 0,
+      image: '/assets/img/creation-1.jpg',
+      sort_order: Number(catData.sort_order) || 0,
+      is_active: true
+    };
+    setCategories((prev) => [...prev, newCat]);
+
+    try {
+      await api.admin.createCategory({
+        name: newCat.name,
+        type: newCat.type,
+        sort_order: newCat.sort_order
+      });
+    } catch (e) {}
+
+    return newCat;
+  };
+
+  const deleteCategory = async (idOrSlug) => {
+    setCategories((prev) => prev.filter((c) => c.id !== idOrSlug && c.slug !== idOrSlug));
+    if (typeof idOrSlug === 'number') {
+      try {
+        await api.admin.deleteCategory(idOrSlug);
+      } catch (e) {}
+    }
+  };
+
   // Actions Produits
   const addProduct = async (newProd) => {
     const id = newProd.id || `prod-${Date.now()}`;
+    const img = newProd.image || (newProd.images && newProd.images[0]) || '/images/look-imprime-2.jpg';
     const product = {
       ...newProd,
       id,
       slug: newProd.slug || id,
       price: Number(newProd.price),
       inStock: newProd.inStock !== false,
-      images: newProd.images || [newProd.image]
+      image: img,
+      images: newProd.images || [img]
     };
     setProducts((prev) => [product, ...prev]);
 
@@ -207,13 +294,12 @@ export function StoreProvider({ children }) {
       await api.admin.createProduct({
         name: product.name,
         price: product.price,
+        category_id: newProd.category_id || null,
         description: product.description,
-        main_image: product.images[0],
+        main_image: img,
         stock: product.inStock ? 10 : 0
       });
-    } catch (e) {
-      // Stocké localement
-    }
+    } catch (e) {}
   };
 
   const updateProduct = async (id, updatedFields) => {
@@ -224,9 +310,7 @@ export function StoreProvider({ children }) {
     if (typeof id === 'number') {
       try {
         await api.admin.updateProduct(id, updatedFields);
-      } catch (e) {
-        // Ignorer si local
-      }
+      } catch (e) {}
     }
   };
 
@@ -236,23 +320,21 @@ export function StoreProvider({ children }) {
     if (typeof id === 'number') {
       try {
         await api.admin.deleteProduct(id);
-      } catch (e) {
-        // Ignorer si local
-      }
+      } catch (e) {}
     }
   };
 
-  // Actions Commandes
+  // Actions Commandes Prêt-à-Porter
   const addOrder = async (orderData) => {
     const newOrder = {
       ...orderData,
+      type: 'pret-a-porter',
       id: `CMD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
       status: 'en_attente',
       createdAt: new Date().toISOString()
     };
     setOrders((prev) => [newOrder, ...prev]);
 
-    // Enregistrement dans l'API Laravel
     try {
       await api.createOrder({
         customer_name: orderData.customerName,
@@ -266,9 +348,7 @@ export function StoreProvider({ children }) {
           quantity: i.quantity || 1
         }))
       });
-    } catch (e) {
-      // Sauvegardé localement
-    }
+    } catch (e) {}
 
     return newOrder;
   };
@@ -281,23 +361,21 @@ export function StoreProvider({ children }) {
     if (typeof id === 'number') {
       try {
         await api.admin.updateOrderStatus(id, status);
-      } catch (e) {
-        // Ignorer
-      }
+      } catch (e) {}
     }
   };
 
-  // Actions Rendez-vous
+  // Actions Rendez-vous Couture
   const addAppointment = async (aptData) => {
     const newApt = {
       ...aptData,
+      type: 'couture',
       id: `RDV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
       status: 'a_confirmer',
       createdAt: new Date().toISOString()
     };
     setAppointments((prev) => [newApt, ...prev]);
 
-    // Enregistrement dans l'API Laravel
     try {
       await api.createAppointment({
         client_name: aptData.clientName,
@@ -307,9 +385,7 @@ export function StoreProvider({ children }) {
         garment_type: aptData.garmentIdea,
         preferred_date: aptData.dateSlot,
       });
-    } catch (e) {
-      // Sauvegardé localement
-    }
+    } catch (e) {}
 
     return newApt;
   };
@@ -322,9 +398,96 @@ export function StoreProvider({ children }) {
     if (typeof id === 'number') {
       try {
         await api.admin.updateAppointmentStatus(id, status);
-      } catch (e) {
-        // Ignorer
-      }
+      } catch (e) {}
+    }
+  };
+
+  // Actions Flocage
+  const updateFlockingStatus = async (id, status) => {
+    setFlockingRequests((prev) =>
+      prev.map((f) => (f.id === id || f.reference === id ? { ...f, status } : f))
+    );
+
+    if (typeof id === 'number') {
+      try {
+        await api.admin.updateFlockingStatus(id, status);
+      } catch (e) {}
+    }
+  };
+
+  // Création Manuelle de Commande (Atelier / WhatsApp / Visite)
+  const addManualOrder = async ({ type, customerName, customerPhone, deliveryAddress, amount, details, status }) => {
+    if (type === 'couture') {
+      const apt = await addAppointment({
+        clientName: customerName,
+        clientPhone: customerPhone,
+        locationType: 'atelier',
+        address: deliveryAddress || 'Atelier AllFashion Cotonou',
+        garmentIdea: details || 'Confection Sur-Mesure',
+        dateSlot: 'Sur rendez-vous',
+        status: status === 'confirmee' ? 'confirme' : 'en_attente'
+      });
+      try {
+        await api.admin.createManualOrder({
+          type: 'couture',
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          delivery_address: deliveryAddress,
+          amount,
+          details,
+          status
+        });
+      } catch (e) {}
+      return apt;
+    } else if (type === 'flocage') {
+      const newFloc = {
+        id: `FLOC-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
+        type: 'flocage',
+        clientName: customerName,
+        clientPhone: customerPhone,
+        garmentType: 'Textile / Vêtement',
+        position: 'Personnalisation',
+        quantity: 1,
+        instructions: details,
+        quotedPrice: Number(amount) || 0,
+        status: status === 'confirmee' ? 'en_production' : 'nouvelle',
+        createdAt: new Date().toISOString()
+      };
+      setFlockingRequests((prev) => [newFloc, ...prev]);
+      try {
+        await api.admin.createManualOrder({
+          type: 'flocage',
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          delivery_address: deliveryAddress,
+          amount,
+          details,
+          status
+        });
+      } catch (e) {}
+      return newFloc;
+    } else {
+      const ord = await addOrder({
+        customerName,
+        whatsappNumber: customerPhone,
+        deliveryAddress: deliveryAddress || 'Retrait en Atelier',
+        items: [{ name: details || 'Article Prêt-à-Porter', size: 'Sur-Mesure', price: Number(amount) || 0, quantity: 1 }],
+        totalAmount: Number(amount) || 0,
+        notes: details,
+        status: status || 'en_attente'
+      });
+      try {
+        await api.admin.createManualOrder({
+          type: 'pret-a-porter',
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          delivery_address: deliveryAddress,
+          amount,
+          details,
+          status
+        });
+      } catch (e) {}
+      return ord;
     }
   };
 
@@ -348,11 +511,14 @@ export function StoreProvider({ children }) {
         categories,
         orders,
         appointments,
+        flockingRequests,
         realisations,
         isAdmin,
         isBackendConnected,
         login,
         logout,
+        addCategory,
+        deleteCategory,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -360,6 +526,8 @@ export function StoreProvider({ children }) {
         updateOrderStatus,
         addAppointment,
         updateAppointmentStatus,
+        updateFlockingStatus,
+        addManualOrder,
         addRealisation,
         deleteRealisation
       }}
