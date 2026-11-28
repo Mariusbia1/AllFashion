@@ -496,7 +496,7 @@ export default function AdminDashboard() {
                 style={{ padding: '0.7rem 1.4rem', fontSize: '0.75rem' }}
               >
                 <Plus size={15} />
-                <span>+ NOUVELLE COMMANDE ATELIER</span>
+                <span>NOUVELLE COMMANDE ATELIER</span>
               </button>
             )}
 
@@ -508,7 +508,7 @@ export default function AdminDashboard() {
                 style={{ padding: '0.7rem 1.4rem', fontSize: '0.75rem' }}
               >
                 <Plus size={15} />
-                <span>+ NOUVELLE CATÉGORIE</span>
+                <span>NOUVELLE CATÉGORIE</span>
               </button>
             )}
 
@@ -520,7 +520,7 @@ export default function AdminDashboard() {
                 style={{ padding: '0.7rem 1.4rem', fontSize: '0.75rem' }}
               >
                 <Plus size={15} />
-                <span>+ AJOUTER UN VÊTEMENT</span>
+                <span>AJOUTER UN VÊTEMENT</span>
               </button>
             )}
           </div>
@@ -1276,7 +1276,7 @@ export default function AdminDashboard() {
                 style={{ padding: '0.6rem 1.4rem', fontSize: '0.75rem' }}
               >
                 <Plus size={15} />
-                <span>+ NOUVEAU VÊTEMENT</span>
+                <span>NOUVEAU VÊTEMENT</span>
               </button>
             </div>
 
