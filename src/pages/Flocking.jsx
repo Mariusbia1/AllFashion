@@ -1,585 +1,435 @@
-import React, { useState } from 'react';
-import { Send, Type, Sparkles, MessageCircle, Info, Check } from 'lucide-react';
+import React from 'react';
+import { MessageCircle, Sparkles, Check, ArrowRight, ShieldCheck, Clock, Users } from 'lucide-react';
 import { STYLIST_WHATSAPP_NUMBER } from '../data/products';
 
-const GARMENT_SUPPORTS = [
-  { id: 'hoodie', name: 'Hoodie Oversize Coton Lourd', image: '/assets/img/creation-4.jpg' },
-  { id: 'tshirt', name: 'T-Shirt Signature 380 GSM', image: '/assets/img/creation-1.jpg' },
-  { id: 'veste', name: 'Veste Structurée Capsule', image: '/assets/img/creation-3.jpg' },
-  { id: 'sweat', name: 'Sweat Minimal Col Rond', image: '/assets/img/creation-5.jpg' }
-];
-
-const MARKING_POSITIONS = [
-  { id: 'dos', name: 'Dos Centré (Grand Format)', top: '38%', left: '50%', scale: 1 },
-  { id: 'poitrine', name: 'Face / Poitrine Centrée', top: '34%', left: '50%', scale: 0.85 },
-  { id: 'coeur', name: 'Cœur (Côté Gauche)', top: '32%', left: '40%', scale: 0.6 }
-];
-
-const FLOCKING_FONTS = [
-  {
-    id: 'athletic',
-    name: 'Athletic / Varsity',
-    fontFamily: "'Bebas Neue', sans-serif",
-    letterSpacing: '0.08em',
-    sample: 'VARSITY'
-  },
-  {
-    id: 'couture',
-    name: 'Couture Romaine',
-    fontFamily: "'Cinzel', serif",
-    letterSpacing: '0.12em',
-    sample: 'ROMAN'
-  },
-  {
-    id: 'streetwear',
-    name: 'Streetwear Bold',
-    fontFamily: "'Space Grotesk', sans-serif",
-    letterSpacing: '0.04em',
-    sample: 'STREET'
-  },
-  {
-    id: 'minimalist',
-    name: 'Minimaliste Chic',
-    fontFamily: "'Inter', sans-serif",
-    letterSpacing: '0.2em',
-    sample: 'MINIMAL'
-  },
-  {
-    id: 'garamond',
-    name: 'Garamond Atelier',
-    fontFamily: "'Cormorant Garamond', serif",
-    letterSpacing: '0.06em',
-    sample: 'ATELIER'
-  }
-];
-
-const FLOCKING_COLORS = [
-  { id: 'white', name: 'Blanc Pur', hex: '#FFFFFF', border: '#DDDDDD' },
-  { id: 'black', name: 'Noir Mat', hex: '#111111', border: '#444444' },
-  { id: 'gold', name: 'Or Satiné', hex: '#D4AF37', border: '#D4AF37' },
-  { id: 'red', name: 'Rouge Vif', hex: '#D32F2F', border: '#D32F2F' }
-];
-
 export default function Flocking() {
-  const [selectedSupport, setSelectedSupport] = useState(GARMENT_SUPPORTS[0]);
-  const [selectedPosition, setSelectedPosition] = useState(MARKING_POSITIONS[0]);
-  const [selectedFont, setSelectedFont] = useState(FLOCKING_FONTS[0]);
-  const [selectedColor, setSelectedColor] = useState(FLOCKING_COLORS[0]);
-
-  // Personnalisation Texte & Numéro
-  const [customText, setCustomText] = useState('ALLFASHION');
-  const [customNumber, setCustomNumber] = useState('07');
-
-  const [quantity, setQuantity] = useState(1);
-  const [clientName, setClientName] = useState('');
-  const [clientPhone, setClientPhone] = useState('');
-  const [instructions, setInstructions] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!clientName || !clientPhone) {
-      alert('Veuillez renseigner votre nom et numéro WhatsApp.');
-      return;
+  const openWhatsApp = (type = 'general') => {
+    let msg = '';
+    if (type === 'logo') {
+      msg = 'Bonjour AllFashion, je souhaite vous envoyer un logo ou une image pour faire un flocage sur vêtement.';
+    } else if (type === 'serie') {
+      msg = 'Bonjour AllFashion, je souhaite un devis pour floquer une série de vêtements (entreprise, club ou groupe).';
+    } else {
+      msg = 'Bonjour AllFashion, je souhaite personnaliser un vêtement avec du flocage (nom, numéro ou texte). Pouvez-vous m’indiquer vos tarifs et délais ?';
     }
-    if (!customText.trim() && !customNumber.trim()) {
-      alert('Veuillez renseigner au moins un texte ou un numéro à floquer.');
-      return;
-    }
-
-    const ref = `FLOC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-    let msg = `*COMMANDE FLOCAGE NOM & NUMÉRO — ALLFASHION*\n`;
-    msg += `Référence : ${ref}\n`;
-    msg += `-----------------------------------\n`;
-    msg += `Client : ${clientName}\n`;
-    msg += `Téléphone : ${clientPhone}\n`;
-    msg += `Support : ${selectedSupport.name}\n`;
-    msg += `Emplacement : ${selectedPosition.name}\n`;
-    msg += `-----------------------------------\n`;
-    msg += `PERSONNALISATION SOUHAITÉE :\n`;
-    if (customText.trim()) {
-      msg += `• Nom / Texte : "${customText.trim().toUpperCase()}"\n`;
-    }
-    if (customNumber.trim()) {
-      msg += `• Numéro : "${customNumber.trim()}"\n`;
-    }
-    msg += `• Police choisie : ${selectedFont.name}\n`;
-    msg += `• Couleur de flocage : ${selectedColor.name}\n`;
-    msg += `• Quantité : ${quantity} pièce(s)\n`;
-    if (instructions.trim()) {
-      msg += `• Précisions : ${instructions.trim()}\n`;
-    }
-    msg += `-----------------------------------\n`;
-    msg += `Bonjour, je souhaite commander cette pièce personnalisée. Pouvez-vous me confirmer le tarif exact et le délai de confection ?`;
-
     window.open(`https://wa.me/${STYLIST_WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
-
-  const handleImageOrderWhatsApp = () => {
-    const msg = `*DEMANDE DE FLOCAGE SUR-MESURE AVEC IMAGE / LOGO*\n` +
-      `Bonjour AllFashion, je souhaite faire floquer un logo/image personnalisé sur l'une de vos pièces. Je vous transmets mon fichier visuel ci-joint pour étude de faisabilité et devis.`;
-    window.open(`https://wa.me/${STYLIST_WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-  };
-
-  const displayText = customText.trim().toUpperCase() || 'VOTRE NOM';
-  const displayNumber = customNumber.trim();
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', paddingBottom: '7rem' }}>
+    <div style={{ backgroundColor: '#FFFFFF', paddingBottom: '7rem', color: '#000000', overflowX: 'hidden' }}>
       
-      {/* Header Flocage */}
-      <section style={{ backgroundColor: '#000000', color: '#FFFFFF', padding: 'clamp(3.5rem, 6vw, 5.5rem) 0', borderBottom: '1px solid #000000' }}>
+      {/* 1. Header Éditorial */}
+      <section style={{
+        backgroundColor: '#000000',
+        color: '#FFFFFF',
+        padding: 'clamp(3.5rem, 6vw, 5.5rem) 0',
+        borderBottom: '1px solid #000000'
+      }}>
         <div className="editorial-container">
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888888', display: 'block', marginBottom: '0.8rem' }}>
-            PERSONNALISATION & FLOCAGE
+          <span style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.75rem',
+            letterSpacing: '0.24em',
+            textTransform: 'uppercase',
+            color: '#888888',
+            display: 'block',
+            marginBottom: '0.8rem',
+            fontWeight: 600
+          }}>
+            PERSONNALISATION TEXTILE
           </span>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.6rem, 5.5vw, 4.2rem)', lineHeight: 1.05, marginBottom: '1.2rem', color: '#FFFFFF' }}>
-            Flocage Nom & Numéro.
+          <h1 style={{
+            fontFamily: 'var(--font-serif)',
+            fontSize: 'clamp(2.4rem, 5.5vw, 4.2rem)',
+            lineHeight: 1.05,
+            marginBottom: '1.2rem',
+            color: '#FFFFFF'
+          }}>
+            Flocage & Personnalisation.
           </h1>
-          <p style={{ color: '#CCCCCC', fontSize: '1rem', maxWidth: '640px', lineHeight: 1.6 }}>
-            Personnalisez votre pièce avec votre nom, texte et numéro. Choisissez votre typographie préférée et visualisez immédiatement le résultat avant de valider votre commande sur WhatsApp.
+          <p style={{
+            color: '#CCCCCC',
+            fontSize: 'clamp(0.95rem, 1.6vw, 1.1rem)',
+            maxWidth: '680px',
+            lineHeight: 1.6
+          }}>
+            Personnalisez vos t-shirts, polos, hoodies, vestes ou casquettes avec votre nom, votre numéro ou le logo de votre entreprise. Contactez directement le styliste sur WhatsApp pour échanger sur votre projet en toute simplicité.
           </p>
         </div>
       </section>
 
-      {/* Studio Interactif Layout 2 Colonnes */}
-      <section style={{ padding: 'clamp(3rem, 5vw, 5rem) 0', borderBottom: '1px solid #E5E5E5' }}>
+      {/* 2. Bloc Principal d'Action WhatsApp : Rapide et sans formulaire */}
+      <section style={{ padding: 'clamp(3rem, 5vw, 4.5rem) 0', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container">
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
-            gap: 'clamp(2rem, 4vw, 4rem)',
-            alignItems: 'start'
+            padding: 'clamp(2rem, 4vw, 3.5rem)',
+            border: '2px solid #000000',
+            backgroundColor: '#FAFAFA',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center'
           }}>
-            
-            {/* Colonne Gauche : Aperçu en Direct sur le Vêtement */}
-            <div style={{ position: 'sticky', top: '96px' }}>
-              <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.6rem' }}>
-                APERÇU EN DIRECT DU FLOCAGE
-              </span>
-              
-              <div style={{
-                position: 'relative',
-                aspectRatio: '3/4',
-                backgroundColor: '#000000',
-                border: '1px solid #000000',
-                overflow: 'hidden'
-              }}>
-                {/* Photo du support textile */}
-                <img
-                  src={selectedSupport.image}
-                  alt={selectedSupport.name}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    filter: 'none'
-                  }}
-                />
-
-                {/* Voile très léger pour faire ressortir le flocage */}
-                <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.22)' }} />
-
-                {/* ZONE DE FLOCAGE : NOM & NUMÉRO EN TEMPS RÉEL */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: selectedPosition.top,
-                    left: selectedPosition.left,
-                    transform: `translate(-50%, -50%) scale(${selectedPosition.scale})`,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    maxWidth: '85%',
-                    pointerEvents: 'none',
-                    zIndex: 10,
-                    textShadow: selectedColor.id === 'white'
-                      ? '0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.9)'
-                      : '0 2px 8px rgba(255,255,255,0.4)'
-                  }}
-                >
-                  {/* Nom floqué */}
-                  {displayText && (
-                    <span
-                      style={{
-                        fontFamily: selectedFont.fontFamily,
-                        fontSize: selectedPosition.id === 'coeur' ? '1.15rem' : 'clamp(1.5rem, 3.2vw, 2.4rem)',
-                        fontWeight: 700,
-                        letterSpacing: selectedFont.letterSpacing,
-                        color: selectedColor.hex,
-                        lineHeight: 1.1,
-                        whiteSpace: 'nowrap',
-                        textTransform: 'uppercase'
-                      }}
-                    >
-                      {displayText}
-                    </span>
-                  )}
-
-                  {/* Numéro floqué */}
-                  {displayNumber && (
-                    <span
-                      style={{
-                        fontFamily: selectedFont.fontFamily,
-                        fontSize: selectedPosition.id === 'coeur' ? '1.8rem' : 'clamp(3.5rem, 8vw, 5.8rem)',
-                        fontWeight: 800,
-                        color: selectedColor.hex,
-                        lineHeight: 0.95,
-                        marginTop: '0.2rem'
-                      }}
-                    >
-                      {displayNumber}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Récapitulatif discret sous la photo */}
-              <div style={{ marginTop: '0.8rem', padding: '0.85rem 1rem', border: '1px solid #E5E5E5', backgroundColor: '#F8F8F8' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', color: '#555555' }}>
-                  Support : <strong>{selectedSupport.name}</strong> • Police : <strong>{selectedFont.name}</strong> • Couleur : <strong>{selectedColor.name}</strong>
-                </span>
-              </div>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.6rem',
+              padding: '0.4rem 0.9rem',
+              backgroundColor: '#000000',
+              color: '#FFFFFF',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.72rem',
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              marginBottom: '1.4rem'
+            }}>
+              <Sparkles size={14} />
+              <span>PAS DE FORMULAIRE COMPLIQUÉ</span>
             </div>
 
-            {/* Colonne Droite : Formulaire & Personnalisation Nom/Numéro/Police */}
-            <div style={{ padding: 'clamp(1.5rem, 3vw, 2.5rem)', border: '1px solid #000000', backgroundColor: '#FFFFFF' }}>
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.6rem' }}>
-                
-                {/* 1. Saisie du Nom et Numéro */}
-                <div>
-                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.6rem' }}>
-                    1. Votre Texte / Nom & Numéro
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '0.8rem' }}>
-                    <div>
-                      <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#666666', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
-                        Nom ou Texte
-                      </span>
-                      <input
-                        type="text"
-                        placeholder="Ex: RAPHAËL, BOSS..."
-                        value={customText}
-                        onChange={(e) => setCustomText(e.target.value)}
-                        className="input-stylist"
-                        maxLength={20}
-                        style={{ fontWeight: 600, textTransform: 'uppercase' }}
-                      />
-                    </div>
-                    <div>
-                      <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#666666', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
-                        Numéro (Optionnel)
-                      </span>
-                      <input
-                        type="text"
-                        placeholder="Ex: 07, 10, 23..."
-                        value={customNumber}
-                        onChange={(e) => setCustomNumber(e.target.value)}
-                        className="input-stylist"
-                        maxLength={4}
-                        style={{ fontWeight: 600 }}
-                      />
-                    </div>
-                  </div>
-                </div>
+            <h2 style={{
+              fontFamily: 'var(--font-serif)',
+              fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+              lineHeight: 1.15,
+              marginBottom: '1rem',
+              maxWidth: '720px'
+            }}>
+              Échangez directement avec le styliste pour votre flocage
+            </h2>
 
-                {/* 2. Choix de la Police de caractères */}
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.6rem' }}>
-                    <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 700 }}>
-                      2. Choisir la Police de Caractères
-                    </label>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888888' }}>
-                      {selectedFont.name}
-                    </span>
-                  </div>
+            <p style={{
+              color: '#555555',
+              fontSize: 'clamp(0.95rem, 1.5vw, 1.05rem)',
+              maxWidth: '620px',
+              lineHeight: 1.6,
+              marginBottom: '2.4rem'
+            }}>
+              Envoyez-nous simplement un message sur WhatsApp avec ce que vous souhaitez inscrire (votre nom, un chiffre ou votre logo). On vous répond immédiatement avec le modèle, les couleurs et le devis.
+            </p>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '0.5rem' }}>
-                    {FLOCKING_FONTS.map((font) => (
-                      <button
-                        key={font.id}
-                        type="button"
-                        onClick={() => setSelectedFont(font)}
-                        style={{
-                          padding: '0.85rem 0.6rem',
-                          border: selectedFont.id === font.id ? '2px solid #000000' : '1px solid #D5D5D5',
-                          backgroundColor: selectedFont.id === font.id ? '#000000' : '#FFFFFF',
-                          color: selectedFont.id === font.id ? '#FFFFFF' : '#000000',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          gap: '0.3rem',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontFamily: font.fontFamily,
-                            fontSize: '1.25rem',
-                            fontWeight: 700,
-                            letterSpacing: font.letterSpacing,
-                            lineHeight: 1
-                          }}
-                        >
-                          {customText.trim() ? customText.trim().slice(0, 7).toUpperCase() : font.sample}
-                        </span>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', textTransform: 'uppercase', opacity: 0.8 }}>
-                          {font.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+            {/* Boutons d'action WhatsApp directs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={() => openWhatsApp('general')}
+                className="btn-stylist-inverse"
+                style={{
+                  padding: '1.1rem 2.4rem',
+                  fontSize: '0.85rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.7rem'
+                }}
+              >
+                <MessageCircle size={18} />
+                <span>DISCUTER SUR WHATSAPP</span>
+              </button>
 
-                {/* 3. Couleur du marquage */}
-                <div>
-                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.6rem' }}>
-                    3. Couleur du Flocage
-                  </label>
-                  <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
-                    {FLOCKING_COLORS.map((col) => (
-                      <button
-                        key={col.id}
-                        type="button"
-                        onClick={() => setSelectedColor(col)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          padding: '0.55rem 0.9rem',
-                          border: selectedColor.id === col.id ? '2px solid #000000' : '1px solid #D5D5D5',
-                          backgroundColor: '#FFFFFF',
-                          cursor: 'pointer',
-                          fontFamily: 'var(--font-mono)',
-                          fontSize: '0.75rem',
-                          fontWeight: selectedColor.id === col.id ? 700 : 500
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: '14px',
-                            height: '14px',
-                            backgroundColor: col.hex,
-                            border: '1px solid #999999',
-                            display: 'inline-block'
-                          }}
-                        />
-                        <span>{col.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 4. Choix du support textile */}
-                <div>
-                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.5rem' }}>
-                    4. Support textile
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '0.5rem' }}>
-                    {GARMENT_SUPPORTS.map((sup) => (
-                      <button
-                        key={sup.id}
-                        type="button"
-                        onClick={() => setSelectedSupport(sup)}
-                        style={{
-                          padding: '0.75rem',
-                          border: selectedSupport.id === sup.id ? '2px solid #000000' : '1px solid #CCCCCC',
-                          backgroundColor: selectedSupport.id === sup.id ? '#000000' : '#FFFFFF',
-                          color: selectedSupport.id === sup.id ? '#FFFFFF' : '#000000',
-                          fontFamily: 'var(--font-sans)',
-                          fontSize: '0.72rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          textAlign: 'left'
-                        }}
-                      >
-                        {sup.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 5. Emplacement */}
-                <div>
-                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.5rem' }}>
-                    5. Emplacement du flocage
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '0.5rem' }}>
-                    {MARKING_POSITIONS.map((pos) => (
-                      <button
-                        key={pos.id}
-                        type="button"
-                        onClick={() => setSelectedPosition(pos)}
-                        style={{
-                          padding: '0.75rem',
-                          border: selectedPosition.id === pos.id ? '2px solid #000000' : '1px solid #CCCCCC',
-                          backgroundColor: selectedPosition.id === pos.id ? '#000000' : '#FFFFFF',
-                          color: selectedPosition.id === pos.id ? '#FFFFFF' : '#000000',
-                          fontFamily: 'var(--font-sans)',
-                          fontSize: '0.72rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          textAlign: 'left'
-                        }}
-                      >
-                        {pos.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 6. Quantité & Coordonnées */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                      Quantité
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="500"
-                      value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-                      className="input-stylist"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                      Votre Nom & Prénom *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Ex: Jean D."
-                      value={clientName}
-                      onChange={(e) => setClientName(e.target.value)}
-                      className="input-stylist"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                      Numéro WhatsApp *
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="+229 XX XX XX XX"
-                      value={clientPhone}
-                      onChange={(e) => setClientPhone(e.target.value)}
-                      className="input-stylist"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Instructions facultatives */}
-                <div>
-                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                    Remarques ou instructions (Optionnel)
-                  </label>
-                  <textarea
-                    rows="2"
-                    placeholder="Dimensions souhaitées, date d'événement particulière..."
-                    value={instructions}
-                    onChange={(e) => setInstructions(e.target.value)}
-                    className="input-stylist"
-                  />
-                </div>
-
-                {/* Bouton de validation WhatsApp */}
-                <button
-                  type="submit"
-                  className="btn-stylist-dark"
-                  style={{ width: '100%', padding: '1.15rem' }}
-                >
-                  <Send size={15} />
-                  <span>COMMANDER MON FLOCAGE SUR WHATSAPP</span>
-                </button>
-              </form>
+              <button
+                type="button"
+                onClick={() => openWhatsApp('logo')}
+                className="btn-stylist-outline"
+                style={{
+                  padding: '1.1rem 2.2rem',
+                  fontSize: '0.85rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.7rem'
+                }}
+              >
+                <MessageCircle size={18} />
+                <span>ENVOYER UN LOGO OU IMAGE</span>
+              </button>
             </div>
 
+            <span style={{
+              display: 'block',
+              marginTop: '1.4rem',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.75rem',
+              color: '#777777'
+            }}>
+              Réponse rapide • Atelier basé à Cotonou
+            </span>
           </div>
         </div>
       </section>
 
-      {/* BANNIÈRE EXPLICATIVE : POUR LES IMAGES / LOGOS (PAS EN LIGNE) */}
-      <section style={{ padding: '4rem 0', backgroundColor: '#F8F8F8', borderBottom: '1px solid #E5E5E5' }}>
+      {/* 3. Les 3 Prestations de Flocage */}
+      <section style={{ padding: 'clamp(3.5rem, 6vw, 5.5rem) 0', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container">
-          <div
-            style={{
-              padding: '2.5rem',
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.4rem' }}>
+              CE QUE NOUS FAISONS
+            </span>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 2.6rem)' }}>
+              Nos Formats de Personnalisation
+            </h2>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: '1.8rem'
+          }}>
+            {/* Format 1 : Nom & Numéro */}
+            <div style={{
+              padding: '2.2rem 1.8rem',
               border: '1px solid #000000',
               backgroundColor: '#FFFFFF',
               display: 'flex',
               flexDirection: 'column',
-              gap: '1.2rem',
-              alignItems: 'flex-start'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <Info size={18} color="#000000" />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700 }}>
-                VOUS SOUHAITEZ UN LOGO D'ENTREPRISE OU UNE IMAGE PERSONNALISÉE ?
-              </span>
+              justifyContent: 'space-between'
+            }}>
+              <div>
+                <span style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.72rem',
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: '#666666',
+                  display: 'block',
+                  marginBottom: '0.6rem'
+                }}>
+                  INDIVIDUEL & STYLE
+                </span>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '0.8rem' }}>
+                  Nom & Numéro
+                </h3>
+                <p style={{ color: '#555555', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                  Idéal pour t-shirts, maillots et hoodies. Inscrivez votre prénom, nom, surnom ou chiffre fétiche avec une police soignée et durable.
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <Check size={15} color="#000000" />
+                    <span>Grand format dos ou poitrine</span>
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <Check size={15} color="#000000" />
+                    <span>Polices élégantes au choix</span>
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <Check size={15} color="#000000" />
+                    <span>Dès 1 pièce</span>
+                  </li>
+                </ul>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => openWhatsApp('general')}
+                className="btn-stylist-outline"
+                style={{ width: '100%', padding: '0.8rem', fontSize: '0.75rem' }}
+              >
+                <span>COMMANDER SUR WHATSAPP</span>
+                <ArrowRight size={14} />
+              </button>
             </div>
 
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', lineHeight: 1.2, margin: 0 }}>
-              Le marquage d'images et logos complexes ne se simule pas en ligne.
-            </h3>
+            {/* Format 2 : Logos d'Entreprises & Groupes */}
+            <div style={{
+              padding: '2.2rem 1.8rem',
+              border: '1px solid #000000',
+              backgroundColor: '#000000',
+              color: '#FFFFFF',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between'
+            }}>
+              <div>
+                <span style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.72rem',
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: '#AAAAAA',
+                  display: 'block',
+                  marginBottom: '0.6rem'
+                }}>
+                  PROFESSIONNEL & ÉVÉNEMENTS
+                </span>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '0.8rem', color: '#FFFFFF' }}>
+                  Logos & Séries
+                </h3>
+                <p style={{ color: '#CCCCCC', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                  Personnalisation pour entreprises, associations, anniversaires et événements. Polos, chemises et casquettes avec votre identité visuelle.
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <Check size={15} color="#FFFFFF" />
+                    <span>Reproduction exacte de votre logo</span>
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <Check size={15} color="#FFFFFF" />
+                    <span>Tarifs dégressifs par quantité</span>
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <Check size={15} color="#FFFFFF" />
+                    <span>Devis rapide sous 1 heure</span>
+                  </li>
+                </ul>
+              </div>
 
-            <p style={{ color: '#555555', fontSize: '0.95rem', lineHeight: 1.6, maxWidth: '850px', margin: 0 }}>
-              Pour garantir une netteté absolue et une tenue irréprochable au lavage, chaque logo, blason ou illustration nécessite une analyse vectorielle et technique spécifique par nos artisans. Envoyez-nous directement votre visuel sur WhatsApp pour recevoir nos conseils et un devis adapté.
-            </p>
+              <button
+                type="button"
+                onClick={() => openWhatsApp('serie')}
+                className="btn-stylist-inverse"
+                style={{ width: '100%', padding: '0.8rem', fontSize: '0.75rem', backgroundColor: '#FFFFFF', color: '#000000' }}
+              >
+                <span>DEMANDER UN DEVIS SÉRIE</span>
+                <ArrowRight size={14} />
+              </button>
+            </div>
 
-            <button
-              type="button"
-              onClick={handleImageOrderWhatsApp}
-              className="btn-stylist-outline"
-              style={{ marginTop: '0.5rem', padding: '0.85rem 1.6rem' }}
-            >
-              <MessageCircle size={15} />
-              <span>ENVOYER MON LOGO / IMAGE SUR WHATSAPP</span>
-            </button>
+            {/* Format 3 : Marquage Créatif & Broderie */}
+            <div style={{
+              padding: '2.2rem 1.8rem',
+              border: '1px solid #000000',
+              backgroundColor: '#FFFFFF',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between'
+            }}>
+              <div>
+                <span style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.72rem',
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: '#666666',
+                  display: 'block',
+                  marginBottom: '0.6rem'
+                }}>
+                  FINITIONS SUR-MESURE
+                </span>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '0.8rem' }}>
+                  Flocage Créatif
+                </h3>
+                <p style={{ color: '#555555', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                  Pour les vestes, pièces capsules ou créations spéciales. Marquage en relief, effet mat ou doré avec finitions couture d'atelier.
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <Check size={15} color="#000000" />
+                    <span>Finitions haute précision</span>
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <Check size={15} color="#000000" />
+                    <span>Tenue renforcée au lavage</span>
+                  </li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <Check size={15} color="#000000" />
+                    <span>Conseils du styliste créateur</span>
+                  </li>
+                </ul>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => openWhatsApp('general')}
+                className="btn-stylist-outline"
+                style={{ width: '100%', padding: '0.8rem', fontSize: '0.75rem' }}
+              >
+                <span>DISCUTER SUR WHATSAPP</span>
+                <ArrowRight size={14} />
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Savoir-faire Flocage */}
-      <section style={{ padding: '5rem 0' }}>
+      {/* 4. Les 3 Étapes Ultra Simples */}
+      <section style={{ padding: 'clamp(3.5rem, 5vw, 5rem) 0', backgroundColor: '#F8F8F8', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container">
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <span className="tracking-wide-caps" style={{ color: '#888888', display: 'block', marginBottom: '0.4rem' }}>
-              SAVOIR-FAIRE D'ATELIER
+              COMMENT ÇA FONCTIONNE
             </span>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem' }}>
-              Nos Techniques de Marquage
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 2.6rem)' }}>
+              Simple en 3 Étapes
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
-            <div style={{ padding: '2rem', border: '1px solid #000000', backgroundColor: '#FFFFFF' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '0.6rem' }}>Flocage Flex Haute Densité</h3>
-              <p style={{ fontSize: '0.85rem', color: '#555555', lineHeight: 1.6 }}>
-                Texture en relief nette, opacité totale et résistance aux lavages répétés. Idéal pour typographies précises, noms et numéros.
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
+            gap: '1.5rem'
+          }}>
+            <div style={{ padding: '2rem 1.6rem', border: '1px solid #000000', backgroundColor: '#FFFFFF' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '2rem', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>
+                01
+              </span>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', marginBottom: '0.5rem' }}>
+                Vous envoyez votre idée
+              </h3>
+              <p style={{ color: '#666666', fontSize: '0.88rem', lineHeight: 1.5 }}>
+                Un message WhatsApp avec votre nom, texte ou photo de logo, et le vêtement que vous souhaitez personnaliser.
               </p>
             </div>
 
-            <div style={{ padding: '2rem', border: '1px solid #000000', backgroundColor: '#FFFFFF' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '0.6rem' }}>Broderie Couture</h3>
-              <p style={{ fontSize: '0.85rem', color: '#555555', lineHeight: 1.6 }}>
-                Points denses au fil renforcé pour un marquage inaltérable sur vestes, casquettes et pièces structurées.
+            <div style={{ padding: '2rem 1.6rem', border: '1px solid #000000', backgroundColor: '#FFFFFF' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '2rem', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>
+                02
+              </span>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', marginBottom: '0.5rem' }}>
+                Validation rapide
+              </h3>
+              <p style={{ color: '#666666', fontSize: '0.88rem', lineHeight: 1.5 }}>
+                Le styliste vous montre un aperçu, vous conseille sur les couleurs et vous donne le tarif exact et le délai.
               </p>
             </div>
 
-            <div style={{ padding: '2rem', border: '1px solid #000000', backgroundColor: '#FFFFFF' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '0.6rem' }}>Sérigraphie Artisanale</h3>
-              <p style={{ fontSize: '0.85rem', color: '#555555', lineHeight: 1.6 }}>
-                Encres écologiques haute tenue pour séries limitées, collections capsules et associations d'entreprise.
+            <div style={{ padding: '2rem 1.6rem', border: '1px solid #000000', backgroundColor: '#FFFFFF' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '2rem', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>
+                03
+              </span>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', marginBottom: '0.5rem' }}>
+                Atelier & Livraison
+              </h3>
+              <p style={{ color: '#666666', fontSize: '0.88rem', lineHeight: 1.5 }}>
+                Le flocage est réalisé avec soin dans notre atelier et votre vêtement est prêt à être récupéré ou livré à Cotonou.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Garanties Atelier */}
+      <section style={{ padding: 'clamp(3rem, 5vw, 4.5rem) 0' }}>
+        <div className="editorial-container">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
+            gap: '1.5rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ padding: '1.8rem 1.2rem', border: '1px solid #E5E5E5' }}>
+              <ShieldCheck size={28} style={{ margin: '0 auto 0.8rem auto' }} />
+              <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.3rem' }}>
+                Tenue Durable
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: '#666666' }}>
+                Flocage de qualité professionnelle résistant aux lavages fréquents.
+              </p>
+            </div>
+
+            <div style={{ padding: '1.8rem 1.2rem', border: '1px solid #E5E5E5' }}>
+              <Users size={28} style={{ margin: '0 auto 0.8rem auto' }} />
+              <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.3rem' }}>
+                À l’Unité ou en Série
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: '#666666' }}>
+                Disponible pour un seul vêtement ou pour 100+ pièces d’entreprise.
+              </p>
+            </div>
+
+            <div style={{ padding: '1.8rem 1.2rem', border: '1px solid #E5E5E5' }}>
+              <Clock size={28} style={{ margin: '0 auto 0.8rem auto' }} />
+              <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.3rem' }}>
+                Délai Rapide
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: '#666666' }}>
+                Confection rapide en 24h à 72h selon la quantité.
               </p>
             </div>
           </div>
