@@ -63,7 +63,15 @@ export function StoreProvider({ children }) {
   // Produits
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem('allfashion_products');
-    return saved ? JSON.parse(saved) : PRODUCTS;
+    const raw = saved ? JSON.parse(saved) : PRODUCTS;
+    return raw.map((p) => {
+      const img = p.image || (p.images && p.images[0]) || p.main_image || '/assets/img/creation-1.jpg';
+      return {
+        ...p,
+        image: img,
+        images: Array.isArray(p.images) && p.images.length > 0 ? p.images : [img]
+      };
+    });
   });
 
   // Catégories
@@ -110,20 +118,24 @@ export function StoreProvider({ children }) {
 
         if (isMounted && prodRes && prodRes.data && prodRes.data.length > 0) {
           setIsBackendConnected(true);
-          const formatted = prodRes.data.map((p) => ({
-            id: p.id,
-            slug: p.slug,
-            name: p.name,
-            category: p.category ? p.category.slug : 'HOMME',
-            price: p.price,
-            priceFormatted: `${Number(p.price).toLocaleString('fr-FR')} FCFA`,
-            badge: p.badge,
-            description: p.description,
-            details: Array.isArray(p.details) ? p.details : [],
-            sizes: Array.isArray(p.sizes) ? p.sizes : ['S', 'M', 'L', 'XL'],
-            images: [p.main_image || '/assets/img/creation-1.jpg'],
-            inStock: (p.stock || 0) > 0 && p.is_active !== false,
-          }));
+          const formatted = prodRes.data.map((p) => {
+            const mainImg = p.main_image || (p.images && p.images[0]) || p.image || '/assets/img/creation-1.jpg';
+            return {
+              id: p.id,
+              slug: p.slug,
+              name: p.name,
+              category: p.category ? p.category.slug : 'HOMME',
+              price: p.price,
+              priceFormatted: `${Number(p.price).toLocaleString('fr-FR')} FCFA`,
+              badge: p.badge,
+              description: p.description,
+              details: Array.isArray(p.details) ? p.details : [],
+              sizes: Array.isArray(p.sizes) ? p.sizes : ['S', 'M', 'L', 'XL'],
+              image: mainImg,
+              images: Array.isArray(p.images) && p.images.length > 0 ? p.images : [mainImg],
+              inStock: (p.stock || 0) > 0 && p.is_active !== false,
+            };
+          });
           setProducts(formatted);
         }
 

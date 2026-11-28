@@ -531,9 +531,13 @@ export default function AdminDashboard() {
                     <tr key={p.id} style={{ borderBottom: '1px solid #EEEEEE' }}>
                       <td style={{ padding: '0.7rem 0.5rem' }}>
                         <img
-                          src={p.image}
+                          src={p.image || (p.images && p.images[0]) || p.main_image || '/assets/img/creation-1.jpg'}
                           alt={p.name}
-                          style={{ width: '48px', height: '60px', objectFit: 'cover', border: '1px solid #E0E0E0' }}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/assets/img/creation-1.jpg';
+                          }}
+                          style={{ width: '48px', height: '60px', objectFit: 'cover', border: '1px solid #E0E0E0', backgroundColor: '#F5F5F5' }}
                         />
                       </td>
                       <td style={{ padding: '0.7rem 0.5rem' }}>
