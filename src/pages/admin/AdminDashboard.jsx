@@ -233,7 +233,7 @@ export default function AdminDashboard() {
     ...orders.map((o) => ({
       ...o,
       orderType: 'pret-a-porter',
-      typeBadge: '🛍️ PRÊT-À-PORTER',
+      typeBadge: 'PRÊT-À-PORTER',
       badgeColor: '#166534',
       badgeBg: '#DCFCE7',
       client: o.customerName,
@@ -249,7 +249,7 @@ export default function AdminDashboard() {
           ))}
           {o.deliveryAddress && (
             <div style={{ fontSize: '0.72rem', color: '#666666', marginTop: '0.3rem' }}>
-              📍 <em>Livraison :</em> {o.deliveryAddress}
+              Livraison : {o.deliveryAddress}
             </div>
           )}
         </div>
@@ -262,7 +262,7 @@ export default function AdminDashboard() {
     ...appointments.map((a) => ({
       ...a,
       orderType: 'couture',
-      typeBadge: '✂️ COUTURE SUR-MESURE',
+      typeBadge: 'SUR-MESURE & COUTURE',
       badgeColor: '#000000',
       badgeBg: '#F3F4F6',
       client: a.clientName || a.customerName,
@@ -274,7 +274,7 @@ export default function AdminDashboard() {
             {a.garmentIdea || a.garment_type || 'Tenue Sur-Mesure'}
           </span>
           <div style={{ fontSize: '0.74rem', color: '#444444' }}>
-            📍 <strong>Lieu :</strong> {a.locationType === 'domicile' ? 'Déplacement chez le client' : "À l'Atelier AllFashion"}
+            <strong>Lieu :</strong> {a.locationType === 'domicile' ? 'Déplacement chez le client' : "À l'Atelier AllFashion"}
           </div>
           {a.address && (
             <div style={{ fontSize: '0.72rem', color: '#666666' }}>
@@ -283,7 +283,7 @@ export default function AdminDashboard() {
           )}
           {a.dateSlot && (
             <div style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600, marginTop: '0.2rem' }}>
-              📅 Date souhaitée : {a.dateSlot}
+              Date souhaitée : {a.dateSlot}
             </div>
           )}
         </div>
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
     ...flockingRequests.map((f) => ({
       ...f,
       orderType: 'flocage',
-      typeBadge: '🎨 FLOCAGE & MARQUAGE',
+      typeBadge: 'FLOCAGE & MARQUAGE',
       badgeColor: '#1E40AF',
       badgeBg: '#DBEAFE',
       client: f.clientName,
@@ -308,7 +308,7 @@ export default function AdminDashboard() {
             {f.garmentType} ({f.quantity} pièces)
           </span>
           <div style={{ fontSize: '0.74rem', color: '#444444' }}>
-            🎯 <strong>Emplacement :</strong> {f.position}
+            <strong>Emplacement :</strong> {f.position}
           </div>
           {f.instructions && (
             <div style={{ fontSize: '0.72rem', color: '#555555', marginTop: '0.2rem', fontStyle: 'italic' }}>
@@ -630,9 +630,9 @@ export default function AdminDashboard() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.5rem' }}>
               {[
                 { id: 'ALL', label: `Tous les travaux (${totalAllOrders})` },
-                { id: 'couture', label: `✂️ Confection Sur-Mesure (${appointments.length})` },
-                { id: 'flocage', label: `🎨 Flocage & Marquage (${flockingRequests.length})` },
-                { id: 'pret-a-porter', label: `🛍️ Boutique Prêt-à-Porter (${orders.length})` }
+                { id: 'couture', label: `Sur-Mesure & Couture (${appointments.length})` },
+                { id: 'flocage', label: `Flocage & Marquage (${flockingRequests.length})` },
+                { id: 'pret-a-porter', label: `Boutique Prêt-à-Porter (${orders.length})` }
               ].map((f) => (
                 <button
                   key={f.id}
@@ -954,7 +954,7 @@ export default function AdminDashboard() {
                           }}
                           title="Cliquer pour basculer en stock ou rupture"
                         >
-                          {p.inStock ? '✓ EN STOCK' : '✗ RUPTURE'}
+                          {p.inStock ? 'EN STOCK' : 'RUPTURE'}
                         </button>
                       </td>
                       <td style={{ padding: '0.7rem 0.5rem', textAlign: 'right' }}>
@@ -1119,9 +1119,9 @@ export default function AdminDashboard() {
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
                   {[
-                    { id: 'couture', label: '✂️ Couture' },
-                    { id: 'flocage', label: '🎨 Flocage' },
-                    { id: 'pret-a-porter', label: '🛍️ Prêt-à-Porter' }
+                    { id: 'couture', label: 'Couture Sur-Mesure' },
+                    { id: 'flocage', label: 'Flocage Textile' },
+                    { id: 'pret-a-porter', label: 'Prêt-à-Porter' }
                   ].map((t) => (
                     <button
                       key={t.id}
