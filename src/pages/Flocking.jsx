@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageCircle, Sparkles, Check, ArrowRight, ShieldCheck, Clock, Users } from 'lucide-react';
+import { MessageCircle, Check, ArrowRight, ShieldCheck, Clock, Users } from 'lucide-react';
 import { STYLIST_WHATSAPP_NUMBER } from '../data/products';
 
 export default function Flocking() {
@@ -51,111 +51,55 @@ export default function Flocking() {
             color: '#CCCCCC',
             fontSize: 'clamp(0.95rem, 1.6vw, 1.1rem)',
             maxWidth: '680px',
-            lineHeight: 1.6
+            lineHeight: 1.6,
+            marginBottom: '2rem'
           }}>
             Personnalisez vos t-shirts, polos, hoodies, vestes ou casquettes avec votre nom, votre numéro ou le logo de votre entreprise. Contactez directement le styliste sur WhatsApp pour échanger sur votre projet en toute simplicité.
           </p>
-        </div>
-      </section>
 
-      {/* 2. Bloc Principal d'Action WhatsApp : Rapide et sans formulaire */}
-      <section style={{ padding: 'clamp(3rem, 5vw, 4.5rem) 0', borderBottom: '1px solid #E5E5E5' }}>
-        <div className="editorial-container">
-          <div style={{
-            padding: 'clamp(2rem, 4vw, 3.5rem)',
-            border: '2px solid #000000',
-            backgroundColor: '#FAFAFA',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.6rem',
-              padding: '0.4rem 0.9rem',
-              backgroundColor: '#000000',
-              color: '#FFFFFF',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.72rem',
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              marginBottom: '1.4rem'
-            }}>
-              <Sparkles size={14} />
-              <span>PAS DE FORMULAIRE COMPLIQUÉ</span>
-            </div>
+          {/* Boutons d'action WhatsApp directs dans le Header */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <button
+              type="button"
+              onClick={() => openWhatsApp('general')}
+              className="btn-stylist-inverse"
+              style={{
+                padding: '1rem 2.2rem',
+                fontSize: '0.82rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                backgroundColor: '#FFFFFF',
+                color: '#000000',
+                border: '1px solid #FFFFFF'
+              }}
+            >
+              <MessageCircle size={17} />
+              <span>DISCUTER SUR WHATSAPP</span>
+            </button>
 
-            <h2 style={{
-              fontFamily: 'var(--font-serif)',
-              fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
-              lineHeight: 1.15,
-              marginBottom: '1rem',
-              maxWidth: '720px'
-            }}>
-              Échangez directement avec le styliste pour votre flocage
-            </h2>
-
-            <p style={{
-              color: '#555555',
-              fontSize: 'clamp(0.95rem, 1.5vw, 1.05rem)',
-              maxWidth: '620px',
-              lineHeight: 1.6,
-              marginBottom: '2.4rem'
-            }}>
-              Envoyez-nous simplement un message sur WhatsApp avec ce que vous souhaitez inscrire (votre nom, un chiffre ou votre logo). On vous répond immédiatement avec le modèle, les couleurs et le devis.
-            </p>
-
-            {/* Boutons d'action WhatsApp directs */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
-              <button
-                type="button"
-                onClick={() => openWhatsApp('general')}
-                className="btn-stylist-inverse"
-                style={{
-                  padding: '1.1rem 2.4rem',
-                  fontSize: '0.85rem',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.7rem'
-                }}
-              >
-                <MessageCircle size={18} />
-                <span>DISCUTER SUR WHATSAPP</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => openWhatsApp('logo')}
-                className="btn-stylist-outline"
-                style={{
-                  padding: '1.1rem 2.2rem',
-                  fontSize: '0.85rem',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.7rem'
-                }}
-              >
-                <MessageCircle size={18} />
-                <span>ENVOYER UN LOGO OU IMAGE</span>
-              </button>
-            </div>
-
-            <span style={{
-              display: 'block',
-              marginTop: '1.4rem',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.75rem',
-              color: '#777777'
-            }}>
-              Réponse rapide • Atelier basé à Cotonou
-            </span>
+            <button
+              type="button"
+              onClick={() => openWhatsApp('logo')}
+              className="btn-stylist-outline"
+              style={{
+                padding: '1rem 2.2rem',
+                fontSize: '0.82rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                color: '#FFFFFF',
+                borderColor: '#FFFFFF'
+              }}
+            >
+              <MessageCircle size={17} />
+              <span>ENVOYER UN LOGO OU IMAGE</span>
+            </button>
           </div>
         </div>
       </section>
 
-      {/* 3. Les 3 Prestations de Flocage */}
+      {/* 2. Les 3 Prestations de Flocage */}
       <section style={{ padding: 'clamp(3.5rem, 6vw, 5.5rem) 0', borderBottom: '1px solid #E5E5E5' }}>
         <div className="editorial-container">
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
