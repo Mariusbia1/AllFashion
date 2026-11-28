@@ -175,10 +175,11 @@ export function StoreProvider({ children }) {
     let isMounted = true;
     async function syncWithLaravel() {
       try {
-        const [prodRes, catRes, flocRes] = await Promise.all([
+        const [prodRes, catRes, flocRes, lookRes] = await Promise.all([
           api.getProducts().catch(() => null),
           api.getCategories().catch(() => null),
           api.admin.getFlockingRequests().catch(() => null),
+          api.getLookbook().catch(() => null),
         ]);
 
         if (isMounted && prodRes && prodRes.data && prodRes.data.length > 0) {
@@ -228,6 +229,19 @@ export function StoreProvider({ children }) {
             quotedPrice: f.quoted_price,
             status: f.status,
             createdAt: f.created_at
+          })));
+        }
+
+        if (isMounted && lookRes && lookRes.data && lookRes.data.length > 0) {
+          setRealisations(lookRes.data.map(l => ({
+            id: l.id,
+            title: l.title,
+            category: l.category ? l.category.name : (l.badge || 'Haute Couture'),
+            image: l.image_path.startsWith('http')
+              ? l.image_path
+              : (l.image_path.startsWith('/') ? l.image_path : `http://127.0.0.1:8000/storage/${l.image_path}`),
+            desc: l.description || '',
+            badge: l.badge || (l.category ? l.category.name : 'Créateur')
           })));
         }
       } catch (err) {
@@ -556,16 +570,52 @@ export function StoreProvider({ children }) {
   };
 
   // Actions Réalisations
-  const addRealisation = (real) => {
+  const addRealisation = async (real) => {
+    const tempId = `real-${Date.now()}`;
     const newReal = {
       ...real,
-      id: `real-${Date.now()}`
+      id: tempId
     };
     setRealisations((prev) => [newReal, ...prev]);
+
+    try {
+      const res = await api.admin.createLookbookItem({
+        title: real.title,
+        image_path: real.image,
+        description: real.desc || '',
+        badge: real.badge || 'Créateur',
+        category_slug: real.category
+      });
+      if (res && res.data) {
+        setRealisations((prev) =>
+          prev.map((r) =>
+            r.id === tempId
+              ? {
+                  ...r,
+                  id: res.data.id,
+                  image: res.data.image_path.startsWith('http')
+                    ? res.data.image_path
+                    : (res.data.image_path.startsWith('/') ? res.data.image_path : `http://127.0.0.1:8000/storage/${res.data.image_path}`)
+                }
+              : r
+          )
+        );
+      }
+    } catch (e) {
+      console.info('Galerie enregistrée localement:', e.message);
+    }
+    return newReal;
   };
 
-  const deleteRealisation = (id) => {
+  const deleteRealisation = async (id) => {
     setRealisations((prev) => prev.filter((r) => r.id !== id));
+    try {
+      if (typeof id === 'number' || !String(id).startsWith('real-')) {
+        await api.admin.deleteLookbookItem(id);
+      }
+    } catch (e) {
+      console.info('Suppression galerie locale:', e.message);
+    }
   };
 
   return (

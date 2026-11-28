@@ -30,9 +30,11 @@ import {
   Smartphone,
   Globe,
   ArrowUpRight,
-  Activity
+  Activity,
+  Upload
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
+import { api } from '../../services/api';
 
 export default function AdminDashboard() {
   const {
@@ -106,6 +108,19 @@ export default function AdminDashboard() {
   // Modal Édition Produit
   const [editingProd, setEditingProd] = useState(null);
 
+  // Modal Ajout Photo Galerie Lookbook
+  const [isAddPhotoModalOpen, setIsAddPhotoModalOpen] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState('');
+  const [newPhoto, setNewPhoto] = useState({
+    title: '',
+    category: 'Sur-Mesure Cérémonie',
+    badge: 'Créateur',
+    desc: '',
+    imageUrl: ''
+  });
+
   // Redirection si non authentifié
   if (!isAdmin) {
     navigate('/admin/login');
@@ -166,6 +181,62 @@ export default function AdminDashboard() {
       isNew: true,
       isBestSeller: false
     });
+  };
+
+  // Sélection & prévisualisation de photo
+  const handlePhotoFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhotoFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setPhotoPreview(previewUrl);
+    }
+  };
+
+  // Soumission Ajout Photo Galerie
+  const handleAddPhotoSubmit = async (e) => {
+    e.preventDefault();
+    if (!newPhoto.title) {
+      alert('Veuillez renseigner le titre de la tenue.');
+      return;
+    }
+
+    if (!photoFile && !newPhoto.imageUrl) {
+      alert('Veuillez sélectionner une photo sur votre appareil ou renseigner une URL.');
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+    let finalImageUrl = newPhoto.imageUrl;
+
+    try {
+      if (photoFile) {
+        finalImageUrl = await api.uploadImage(photoFile);
+      }
+
+      await addRealisation({
+        title: newPhoto.title,
+        category: newPhoto.category,
+        badge: newPhoto.badge || 'Créateur',
+        desc: newPhoto.desc,
+        image: finalImageUrl || '/images/look-imprime-2.jpg'
+      });
+
+      setIsAddPhotoModalOpen(false);
+      setPhotoFile(null);
+      setPhotoPreview('');
+      setNewPhoto({
+        title: '',
+        category: 'Sur-Mesure Cérémonie',
+        badge: 'Créateur',
+        desc: '',
+        imageUrl: ''
+      });
+    } catch (err) {
+      alert('Une erreur est survenue lors de l’enregistrement de la photo.');
+    } finally {
+      setIsUploadingPhoto(false);
+    }
   };
 
   // Soumission Édition Produit
@@ -521,6 +592,18 @@ export default function AdminDashboard() {
               >
                 <Plus size={15} />
                 <span>AJOUTER UN VÊTEMENT</span>
+              </button>
+            )}
+
+            {activeTab === 'realisations' && (
+              <button
+                type="button"
+                onClick={() => setIsAddPhotoModalOpen(true)}
+                className="btn-stylist-dark"
+                style={{ padding: '0.7rem 1.4rem', fontSize: '0.75rem' }}
+              >
+                <Plus size={15} />
+                <span>AJOUTER UNE PHOTO</span>
               </button>
             )}
           </div>
@@ -1371,42 +1454,116 @@ export default function AdminDashboard() {
             ========================================================================= */}
         {activeTab === 'realisations' && (
           <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5', padding: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem' }}>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', margin: 0 }}>
                   Galerie & Réalisations de l'Atelier
                 </h3>
-                <p style={{ color: '#666666', fontSize: '0.82rem', marginTop: '0.2rem' }}>
-                  Photos haute qualité affichées sur la page d'accueil et dans le lookbook pour inspirer les clients.
+                <p style={{ color: '#666666', fontSize: '0.82rem', marginTop: '0.3rem', marginBottom: 0 }}>
+                  Vos photos ajoutées ici s'affichent automatiquement sur la page d'accueil et dans la page Lookbook pour tous les visiteurs.
                 </p>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setIsAddPhotoModalOpen(true)}
+                className="btn-stylist-dark"
+                style={{ padding: '0.65rem 1.3rem', fontSize: '0.75rem' }}
+              >
+                <Plus size={15} />
+                <span>AJOUTER UNE PHOTO</span>
+              </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.2rem' }}>
-              {realisations.map((r) => (
-                <div key={r.id} style={{ border: '1px solid #E5E5E5', backgroundColor: '#FFFFFF' }}>
-                  <img src={r.image} alt={r.title} style={{ width: '100%', height: '220px', objectFit: 'cover' }} />
-                  <div style={{ padding: '0.9rem' }}>
-                    <span style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono)', color: '#888888', textTransform: 'uppercase' }}>
-                      {r.category}
-                    </span>
-                    <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', marginTop: '0.2rem' }}>{r.title}</h4>
-                    <p style={{ fontSize: '0.75rem', color: '#666666', marginTop: '0.3rem', lineHeight: 1.4 }}>{r.desc}</p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (confirm(`Supprimer "${r.title}" ?`)) {
-                          deleteRealisation(r.id);
-                        }
-                      }}
-                      style={{ marginTop: '0.8rem', padding: '0.3rem 0.6rem', border: '1px solid #FFCCCC', backgroundColor: '#FFF5F5', color: '#DC2626', fontSize: '0.7rem', cursor: 'pointer' }}
-                    >
-                      Supprimer
-                    </button>
+            {realisations.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3.5rem 1rem', border: '1px dashed #CCCCCC' }}>
+                <ImageIcon size={36} color="#888888" style={{ margin: '0 auto 0.8rem' }} />
+                <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem' }}>Aucune photo dans la galerie</h4>
+                <p style={{ fontSize: '0.8rem', color: '#666666', marginTop: '0.3rem' }}>
+                  Ajoutez les clichés de vos créations (couture, vestes, costumes, flocages) pour inspirer vos clients.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsAddPhotoModalOpen(true)}
+                  className="btn-stylist-dark"
+                  style={{ marginTop: '1rem', padding: '0.7rem 1.4rem', fontSize: '0.75rem' }}
+                >
+                  <Plus size={15} />
+                  <span>AJOUTER MA PREMIÈRE PHOTO</span>
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.4rem' }}>
+                {realisations.map((r) => (
+                  <div key={r.id} style={{ border: '1px solid #E5E5E5', backgroundColor: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ position: 'relative', width: '100%', height: '260px', overflow: 'hidden', backgroundColor: '#F3F4F6' }}>
+                      <img
+                        src={r.image}
+                        alt={r.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => { e.target.src = '/assets/img/creation-1.jpg'; }}
+                      />
+                      {r.badge && (
+                        <span style={{
+                          position: 'absolute',
+                          top: '10px',
+                          left: '10px',
+                          backgroundColor: '#000000',
+                          color: '#FFFFFF',
+                          fontSize: '0.65rem',
+                          fontFamily: 'var(--font-mono)',
+                          padding: '0.2rem 0.5rem',
+                          textTransform: 'uppercase',
+                          fontWeight: 700
+                        }}>
+                          {r.badge}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <div>
+                        <span style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono)', color: '#888888', textTransform: 'uppercase', display: 'block' }}>
+                          {r.category}
+                        </span>
+                        <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', marginTop: '0.3rem', lineHeight: 1.2 }}>
+                          {r.title}
+                        </h4>
+                        {r.desc && (
+                          <p style={{ fontSize: '0.75rem', color: '#666666', marginTop: '0.4rem', lineHeight: 1.4 }}>
+                            {r.desc}
+                          </p>
+                        )}
+                      </div>
+                      <div style={{ marginTop: '1rem', paddingTop: '0.8rem', borderTop: '1px solid #EEEEEE', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Supprimer la photo "${r.title}" de la galerie ?`)) {
+                              deleteRealisation(r.id);
+                            }
+                          }}
+                          style={{
+                            padding: '0.35rem 0.7rem',
+                            border: '1px solid #FFCCCC',
+                            backgroundColor: '#FFF5F5',
+                            color: '#DC2626',
+                            fontSize: '0.7rem',
+                            fontFamily: 'var(--font-mono)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem'
+                          }}
+                        >
+                          <Trash2 size={12} />
+                          <span>Supprimer</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -2016,6 +2173,223 @@ export default function AdminDashboard() {
                   onClick={() => setEditingProd(null)}
                   style={{
                     padding: '0.9rem 1.4rem',
+                    border: '1px solid #CCCCCC',
+                    backgroundColor: '#FFFFFF',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >
+                  Annuler
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL 5 : AJOUT PHOTO DANS LA GALERIE LOOKBOOK
+          ========================================================================= */}
+      {isAddPhotoModalOpen && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            width: '100%',
+            maxWidth: '560px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            padding: '2rem',
+            position: 'relative'
+          }}>
+            <button
+              type="button"
+              onClick={() => {
+                setIsAddPhotoModalOpen(false);
+                setPhotoFile(null);
+                setPhotoPreview('');
+              }}
+              style={{ position: 'absolute', top: '1.2rem', right: '1.2rem', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              <X size={20} />
+            </button>
+
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888888', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+              PORTFOLIO & LOOKBOOK
+            </span>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', marginTop: '0.2rem', marginBottom: '1.4rem' }}>
+              Ajouter une Photo à la Galerie
+            </h2>
+
+            <form onSubmit={handleAddPhotoSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+              {/* Zone Téléversement Fichier */}
+              <div>
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.4rem', fontWeight: 600 }}>
+                  Sélectionner une photo depuis votre appareil
+                </label>
+                <div style={{
+                  border: '2px dashed #000000',
+                  padding: '1.2rem',
+                  textAlign: 'center',
+                  backgroundColor: '#FAFAFA',
+                  cursor: 'pointer',
+                  position: 'relative'
+                }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoFileChange}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      opacity: 0,
+                      cursor: 'pointer',
+                      width: '100%',
+                      height: '100%'
+                    }}
+                  />
+                  {photoPreview ? (
+                    <div>
+                      <img
+                        src={photoPreview}
+                        alt="Aperçu sélection"
+                        style={{ maxHeight: '180px', margin: '0 auto', objectFit: 'contain' }}
+                      />
+                      <span style={{ display: 'block', fontSize: '0.72rem', color: '#166534', marginTop: '0.5rem', fontWeight: 600 }}>
+                        Photo sélectionnée prête (Cliquer pour changer)
+                      </span>
+                    </div>
+                  ) : (
+                    <div>
+                      <Upload size={28} color="#000000" style={{ margin: '0 auto 0.5rem' }} />
+                      <span style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block' }}>
+                        Cliquez ou glissez une photo ici
+                      </span>
+                      <span style={{ fontSize: '0.7rem', color: '#666666', display: 'block', marginTop: '0.2rem' }}>
+                        Formats supportés : JPG, PNG, WEBP (Jusqu'à 10 Mo)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* URL alternative */}
+              <div>
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                  Ou saisir une URL d'image directe
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://... ou /assets/img/..."
+                  value={newPhoto.imageUrl}
+                  onChange={(e) => {
+                    setNewPhoto({ ...newPhoto, imageUrl: e.target.value });
+                    if (e.target.value) setPhotoPreview(e.target.value);
+                  }}
+                  className="input-stylist"
+                />
+              </div>
+
+              {/* Titre */}
+              <div>
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem', fontWeight: 600 }}>
+                  Titre de la création *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Veste Croisée Cérémonie Bleu Nuit"
+                  value={newPhoto.title}
+                  onChange={(e) => setNewPhoto({ ...newPhoto, title: e.target.value })}
+                  className="input-stylist"
+                  required
+                />
+              </div>
+
+              {/* Catégorie & Badge */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                    Catégorie de la tenue
+                  </label>
+                  <select
+                    value={newPhoto.category}
+                    onChange={(e) => setNewPhoto({ ...newPhoto, category: e.target.value })}
+                    className="input-stylist"
+                  >
+                    <option value="Sur-Mesure Cérémonie">Sur-Mesure Cérémonie</option>
+                    <option value="Haute Couture">Haute Couture</option>
+                    <option value="Tailoring & Vestes">Tailoring & Vestes</option>
+                    <option value="Flocage & Marquage">Flocage & Marquage</option>
+                    <option value="Prêt-à-Porter">Prêt-à-Porter</option>
+                    <option value="Streetwear Éditorial">Streetwear Éditorial</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                    Mention / Badge
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ex: Cérémonie, Créateur..."
+                    value={newPhoto.badge}
+                    onChange={(e) => setNewPhoto({ ...newPhoto, badge: e.target.value })}
+                    className="input-stylist"
+                  />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                  Description / Finitions de confection
+                </label>
+                <textarea
+                  rows="3"
+                  placeholder="Ex: Coupe structurée, doublure satinée, boutons sur-mesure..."
+                  value={newPhoto.desc}
+                  onChange={(e) => setNewPhoto({ ...newPhoto, desc: e.target.value })}
+                  className="input-stylist"
+                />
+              </div>
+
+              {/* Bouton Enregistrer */}
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.8rem' }}>
+                <button
+                  type="submit"
+                  disabled={isUploadingPhoto}
+                  style={{
+                    flex: 1,
+                    padding: '0.95rem',
+                    backgroundColor: '#000000',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    fontFamily: 'var(--font-mono)',
+                    cursor: isUploadingPhoto ? 'not-allowed' : 'pointer',
+                    opacity: isUploadingPhoto ? 0.7 : 1
+                  }}
+                >
+                  {isUploadingPhoto ? 'TÉLÉVERSEMENT EN COURS...' : 'ENREGISTRER LA PHOTO DANS LA GALERIE'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAddPhotoModalOpen(false);
+                    setPhotoFile(null);
+                    setPhotoPreview('');
+                  }}
+                  style={{
+                    padding: '0.95rem 1.4rem',
                     border: '1px solid #CCCCCC',
                     backgroundColor: '#FFFFFF',
                     cursor: 'pointer',

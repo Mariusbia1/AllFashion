@@ -8,10 +8,12 @@ use App\Models\FlockingRequest;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\LookbookItem;
 use App\Services\ReferenceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -271,5 +273,89 @@ class AdminController extends Controller
         $product = Product::findOrFail($id);
         $product->delete();
         return response()->json(['success' => true, 'message' => 'Produit supprimé']);
+    }
+
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp,svg,gif|max:12288',
+        ]);
+
+        $file = $request->file('image');
+        $filename = time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
+        
+        $path = $file->storeAs('gallery', $filename, 'public');
+        $url = asset('storage/' . $path);
+
+        return response()->json([
+            'success' => true,
+            'url' => $url,
+            'path' => $path,
+            'message' => 'Image téléversée avec succès',
+        ]);
+    }
+
+    public function lookbook(): JsonResponse
+    {
+        $items = LookbookItem::with('category')
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+        ]);
+    }
+
+    public function storeLookbook(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'image_path' => 'required|string',
+            'description' => 'nullable|string',
+            'category_id' => 'nullable|exists:categories,id',
+            'badge' => 'nullable|string|max:100',
+            'sort_order' => 'nullable|integer',
+        ]);
+
+        if ($request->filled('category_slug') && empty($validated['category_id'])) {
+            $cat = Category::where('slug', $request->input('category_slug'))->first();
+            if ($cat) {
+                $validated['category_id'] = $cat->id;
+            }
+        }
+
+        $item = LookbookItem::create([
+            'title' => $validated['title'],
+            'image_path' => $validated['image_path'],
+            'description' => $validated['description'] ?? null,
+            'category_id' => $validated['category_id'] ?? null,
+            'badge' => $validated['badge'] ?? null,
+            'sort_order' => $validated['sort_order'] ?? 0,
+            'is_active' => true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $item->load('category'),
+            'message' => 'Création ajoutée à la galerie avec succès',
+        ]);
+    }
+
+    public function deleteLookbook(int $id): JsonResponse
+    {
+        $item = LookbookItem::findOrFail($id);
+        
+        if (!empty($item->image_path) && str_starts_with($item->image_path, 'gallery/')) {
+            Storage::disk('public')->delete($item->image_path);
+        }
+
+        $item->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Photo supprimée de la galerie',
+        ]);
     }
 }

@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Maximize2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { LOOKBOOK_ITEMS } from '../data/products';
+import { useStore } from '../context/StoreContext';
 
 export default function Lookbook() {
+  const { realisations } = useStore();
   const [selectedCat, setSelectedCat] = useState('ALL');
   const [activeImage, setActiveImage] = useState(null);
 
@@ -15,9 +17,31 @@ export default function Lookbook() {
     { id: 'STREETWEAR', label: 'Streetwear Éditorial' }
   ];
 
+  const allItems = useMemo(() => {
+    const customItems = (realisations || []).map((r) => {
+      let cat = 'COUTURE';
+      const c = (r.category || '').toUpperCase();
+      if (c.includes('TAILOR') || c.includes('VESTE')) cat = 'TAILORING';
+      else if (c.includes('CEREMONIE') || c.includes('CÉRÉMONIE')) cat = 'CEREMONIE';
+      else if (c.includes('STREET') || c.includes('FLOC')) cat = 'STREETWEAR';
+
+      return {
+        id: r.id,
+        title: r.title,
+        category: cat,
+        tag: r.category || 'Atelier',
+        image: r.image,
+        description: r.desc || r.description || 'Création unique confectionnée sur-mesure dans notre atelier AllFashion.',
+        badge: r.badge || 'Créateur'
+      };
+    });
+
+    return [...customItems, ...LOOKBOOK_ITEMS];
+  }, [realisations]);
+
   const filteredItems = selectedCat === 'ALL'
-    ? LOOKBOOK_ITEMS
-    : LOOKBOOK_ITEMS.filter((item) => item.category === selectedCat);
+    ? allItems
+    : allItems.filter((item) => item.category === selectedCat);
 
   // Navigation clavier pour la visionneuse (Echap pour fermer, Flèches Gauche/Droite)
   useEffect(() => {

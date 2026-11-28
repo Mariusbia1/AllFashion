@@ -25,10 +25,19 @@ Route::prefix('v1')->group(function () {
     Route::post('/flocking-requests', [FlockingController::class, 'store']);
     Route::post('/contacts', [ContactController::class, 'store']);
 
+    // Téléversement de photos (Galerie, produits, flocage)
+    Route::post('/upload', [AdminController::class, 'uploadImage']);
+
     // Routes Back-Office / Admin
     Route::prefix('admin')->group(function () {
         Route::get('/stats', [AdminController::class, 'stats']);
         Route::get('/analytics', [AdminController::class, 'analytics']);
+        Route::post('/upload', [AdminController::class, 'uploadImage']);
+
+        // Galerie Lookbook (Ajout de photos, listing, suppression)
+        Route::get('/lookbook', [AdminController::class, 'lookbook']);
+        Route::post('/lookbook', [AdminController::class, 'storeLookbook']);
+        Route::delete('/lookbook/{id}', [AdminController::class, 'deleteLookbook']);
 
         // Catégories (Création, modification, suppression)
         Route::get('/categories', [AdminController::class, 'categories']);

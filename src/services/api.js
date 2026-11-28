@@ -3,7 +3,7 @@
  * Communique avec les endpoints /api/v1
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://allfashion-backend.test/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/v1';
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
@@ -24,6 +24,41 @@ async function request(endpoint, options = {}) {
     console.warn(`[API Laravel Offline/Erreur] Sur ${endpoint}:`, error.message);
     throw error;
   }
+}
+
+/**
+ * Téléversement d'image vers Laravel avec repli base64 automatique
+ */
+async function uploadImageFile(file) {
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const res = await fetch(`${API_BASE}/admin/upload`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.url) {
+        return data.url;
+      }
+    }
+  } catch (err) {
+    console.warn('[Upload Laravel non joignable, encodage local]:', err.message);
+  }
+
+  // Repli local instantané (FileReader base64) si le serveur n'est pas encore lancé
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => resolve('/images/look-imprime-2.jpg');
+    reader.readAsDataURL(file);
+  });
 }
 
 export const api = {
@@ -118,6 +153,20 @@ export const api = {
     updateFlockingStatus: (id, status) => request(`/admin/flocking-requests/${id}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status })
+    }),
+
+    // Galerie & Lookbook (Upload, Ajout & Suppression)
+    uploadImage: (file) => uploadImageFile(file),
+    getLookbook: () => request('/admin/lookbook'),
+    createLookbookItem: (data) => request('/admin/lookbook', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+    deleteLookbookItem: (id) => request(`/admin/lookbook/${id}`, {
+      method: 'DELETE'
     })
-  }
+  },
+
+  // Upload accessible publiquement ou admin
+  uploadImage: (file) => uploadImageFile(file)
 };

@@ -12,6 +12,7 @@ class LookbookItem extends Model
     protected $fillable = [
         'category_id',
         'title',
+        'badge',
         'description',
         'image_path',
         'sort_order',
