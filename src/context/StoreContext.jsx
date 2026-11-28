@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { PRODUCTS, CATEGORIES } from '../data/products';
+import { api } from '../services/api';
 
 const StoreContext = createContext();
 
@@ -32,7 +33,7 @@ const INITIAL_REALISATIONS = [
 
 const INITIAL_ORDERS = [
   {
-    id: 'CMD-2026-1042',
+    id: 'CMD-2026-0001',
     customerName: 'Koffi Mensah',
     whatsappNumber: '+229 97 12 34 56',
     deliveryAddress: 'Haie Vive, Cotonou',
@@ -41,41 +42,19 @@ const INITIAL_ORDERS = [
     status: 'confirmee',
     notes: 'Livraison en soirée après 18h',
     createdAt: new Date().toISOString()
-  },
-  {
-    id: 'CMD-2026-1043',
-    customerName: 'Amina Bello',
-    whatsappNumber: '+229 66 88 99 00',
-    deliveryAddress: 'Cadjehoun, Cotonou',
-    items: [{ name: 'Gilet Artistique Imprimé AllFashion', size: 'M', price: 65000, quantity: 1 }],
-    totalAmount: 65000,
-    status: 'en_attente',
-    notes: 'Contactée sur WhatsApp',
-    createdAt: new Date().toISOString()
   }
 ];
 
 const INITIAL_APPOINTMENTS = [
   {
-    id: 'RDV-2026-089',
-    customerName: 'Marius Biaou',
-    whatsappNumber: '+229 90 00 11 22',
+    id: 'RDV-2026-0001',
+    clientName: 'Patrice Talon',
+    clientPhone: '+229 66 55 44 33',
     locationType: 'domicile',
-    address: 'Akpakpa, Cotonou',
-    desiredDate: '2026-12-05',
-    garmentIdea: 'Costume sur-mesure pour gala de fin d’année',
+    address: 'Quartier Les Cocotiers, Cotonou',
+    dateSlot: '2026-12-05',
+    garmentIdea: 'Costume 3 pièces Cérémonie sur-mesure',
     status: 'confirme',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'RDV-2026-090',
-    customerName: 'Diane Sossou',
-    whatsappNumber: '+229 95 44 33 22',
-    locationType: 'bureau',
-    address: 'Ganhi, Immeuble BOA',
-    desiredDate: '2026-12-08',
-    garmentIdea: 'Deux ensembles tailleurs féminins',
-    status: 'a_confirmer',
     createdAt: new Date().toISOString()
   }
 ];
@@ -116,6 +95,56 @@ export function StoreProvider({ children }) {
     return localStorage.getItem('allfashion_admin_auth') === 'true';
   });
 
+  // État de connexion au backend Laravel
+  const [isBackendConnected, setIsBackendConnected] = useState(false);
+
+  // Synchronisation avec l'API Laravel au chargement
+  useEffect(() => {
+    let isMounted = true;
+    async function syncWithLaravel() {
+      try {
+        const [prodRes, catRes] = await Promise.all([
+          api.getProducts().catch(() => null),
+          api.getCategories().catch(() => null),
+        ]);
+
+        if (isMounted && prodRes && prodRes.data && prodRes.data.length > 0) {
+          setIsBackendConnected(true);
+          const formatted = prodRes.data.map((p) => ({
+            id: p.id,
+            slug: p.slug,
+            name: p.name,
+            category: p.category ? p.category.slug : 'HOMME',
+            price: p.price,
+            priceFormatted: `${Number(p.price).toLocaleString('fr-FR')} FCFA`,
+            badge: p.badge,
+            description: p.description,
+            details: Array.isArray(p.details) ? p.details : [],
+            sizes: Array.isArray(p.sizes) ? p.sizes : ['S', 'M', 'L', 'XL'],
+            images: [p.main_image || '/assets/img/creation-1.jpg'],
+            inStock: (p.stock || 0) > 0 && p.is_active !== false,
+          }));
+          setProducts(formatted);
+        }
+
+        if (isMounted && catRes && catRes.data && catRes.data.length > 0) {
+          setCategories(catRes.data.map(c => ({
+            id: c.slug,
+            name: c.name,
+            count: c.products_count || 0,
+            image: '/assets/img/creation-1.jpg'
+          })));
+        }
+      } catch (err) {
+        // En cas d'indisponibilité du serveur, le store local assure la continuité
+        console.info('[Store] Utilisation des données locales');
+      }
+    }
+
+    syncWithLaravel();
+    return () => { isMounted = false; };
+  }, []);
+
   // Synchronisation localStorage
   useEffect(() => {
     localStorage.setItem('allfashion_products', JSON.stringify(products));
@@ -149,7 +178,7 @@ export function StoreProvider({ children }) {
   };
 
   // Actions Produits
-  const addProduct = (newProd) => {
+  const addProduct = async (newProd) => {
     const id = newProd.id || `prod-${Date.now()}`;
     const product = {
       ...newProd,
@@ -160,20 +189,49 @@ export function StoreProvider({ children }) {
       images: newProd.images || [newProd.image]
     };
     setProducts((prev) => [product, ...prev]);
+
+    // Envoi au backend Laravel
+    try {
+      await api.admin.createProduct({
+        name: product.name,
+        price: product.price,
+        description: product.description,
+        main_image: product.images[0],
+        stock: product.inStock ? 10 : 0
+      });
+    } catch (e) {
+      // Stocké localement
+    }
   };
 
-  const updateProduct = (id, updatedFields) => {
+  const updateProduct = async (id, updatedFields) => {
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...updatedFields } : p))
     );
+
+    if (typeof id === 'number') {
+      try {
+        await api.admin.updateProduct(id, updatedFields);
+      } catch (e) {
+        // Ignorer si local
+      }
+    }
   };
 
-  const deleteProduct = (id) => {
+  const deleteProduct = async (id) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
+
+    if (typeof id === 'number') {
+      try {
+        await api.admin.deleteProduct(id);
+      } catch (e) {
+        // Ignorer si local
+      }
+    }
   };
 
   // Actions Commandes
-  const addOrder = (orderData) => {
+  const addOrder = async (orderData) => {
     const newOrder = {
       ...orderData,
       id: `CMD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -181,17 +239,44 @@ export function StoreProvider({ children }) {
       createdAt: new Date().toISOString()
     };
     setOrders((prev) => [newOrder, ...prev]);
+
+    // Enregistrement dans l'API Laravel
+    try {
+      await api.createOrder({
+        customer_name: orderData.customerName,
+        customer_phone: orderData.whatsappNumber,
+        customer_address: orderData.deliveryAddress,
+        notes: orderData.notes,
+        items: (orderData.items || []).map(i => ({
+          name: i.name,
+          size: i.size || 'M',
+          unit_price: i.price,
+          quantity: i.quantity || 1
+        }))
+      });
+    } catch (e) {
+      // Sauvegardé localement
+    }
+
     return newOrder;
   };
 
-  const updateOrderStatus = (id, status) => {
+  const updateOrderStatus = async (id, status) => {
     setOrders((prev) =>
       prev.map((o) => (o.id === id ? { ...o, status } : o))
     );
+
+    if (typeof id === 'number') {
+      try {
+        await api.admin.updateOrderStatus(id, status);
+      } catch (e) {
+        // Ignorer
+      }
+    }
   };
 
   // Actions Rendez-vous
-  const addAppointment = (aptData) => {
+  const addAppointment = async (aptData) => {
     const newApt = {
       ...aptData,
       id: `RDV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
@@ -199,13 +284,36 @@ export function StoreProvider({ children }) {
       createdAt: new Date().toISOString()
     };
     setAppointments((prev) => [newApt, ...prev]);
+
+    // Enregistrement dans l'API Laravel
+    try {
+      await api.createAppointment({
+        client_name: aptData.clientName,
+        client_phone: aptData.clientPhone,
+        location_type: aptData.locationType || 'domicile',
+        address: aptData.address,
+        garment_type: aptData.garmentIdea,
+        preferred_date: aptData.dateSlot,
+      });
+    } catch (e) {
+      // Sauvegardé localement
+    }
+
     return newApt;
   };
 
-  const updateAppointmentStatus = (id, status) => {
+  const updateAppointmentStatus = async (id, status) => {
     setAppointments((prev) =>
       prev.map((a) => (a.id === id ? { ...a, status } : a))
     );
+
+    if (typeof id === 'number') {
+      try {
+        await api.admin.updateAppointmentStatus(id, status);
+      } catch (e) {
+        // Ignorer
+      }
+    }
   };
 
   // Actions Réalisations
@@ -230,6 +338,7 @@ export function StoreProvider({ children }) {
         appointments,
         realisations,
         isAdmin,
+        isBackendConnected,
         login,
         logout,
         addProduct,

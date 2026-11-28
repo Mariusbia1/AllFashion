@@ -37,7 +37,7 @@ export default function ProductDetail() {
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', paddingBottom: '7rem' }}>
-      
+
       {/* Navigation fil d'ariane */}
       <div className="editorial-container" style={{ paddingTop: '2rem', paddingBottom: '1.5rem' }}>
         <Link
